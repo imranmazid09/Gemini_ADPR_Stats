@@ -4,3 +4,8 @@
 
 [functions]
   node_bundler = "esbuild" # Use esbuild for faster function bundling
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
