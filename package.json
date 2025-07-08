@@ -1,0 +1,14 @@
+{
+  "name": "gemini-adpr-stats",
+  "version": "1.0.0",
+  "description": "Serverless function to connect to Gemini API for AdPR stats module.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dr. Imran Mazid",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.14.1"
+  }
+}

@@ -1,0 +1,7 @@
+# This is the configuration file for Netlify.
+# It tells Netlify where to find the serverless functions for your site.
+
+[functions]
+  # Specifies the directory where your serverless functions are located.
+  # Netlify will automatically look for JavaScript files inside this folder.
+  directory = "netlify/functions/"

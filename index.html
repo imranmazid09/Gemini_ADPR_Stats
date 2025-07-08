@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive AdPR Statistical Analysis Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Calm Harmony Neutrals (Light Gray with Teal Accents) -->
+    <!-- Application Structure Plan: The SPA is structured with a fixed sidebar for primary navigation, allowing users to jump to any of the six core statistical modules, plus the introduction and conclusion. This non-linear navigation promotes self-paced learning. Within each module, content is organized into logical, collapsible sections (e.g., "Key Assumptions," "SPSS Procedure") to manage cognitive load. Key terms are highlighted with tooltips for instant clarification. Interactive charts visualize the conceptual SPSS output tables, making the data more accessible. This structure was chosen to transform a dense, linear report into an explorable, user-friendly digital resource that prioritizes understanding and engagement over a rigid, sequential path. -->
+    <!-- Visualization & Content Choices: 
+        - Introduction/Conclusion: Goal: Inform/Summarize. Method: Text content in structured HTML. Justification: Clear, direct communication.
+        - Levels of Data: Goal: Classify/Inform. Method: HTML table for comparison. Interaction: Tooltips for key properties. Justification: Organizes complex definitions for easy comparison.
+        - Chi-Square Test: Goal: Explain Association. Method: Chart.js Bar Chart. Viz: Compares conceptual observed vs. expected frequencies. Interaction: Clickable tooltips on conceptual SPSS table values. Justification: Visualizes the core logic of the Chi-Square test.
+        - T-Test: Goal: Compare two groups. Method: Chart.js Bar Chart. Viz: Compares the means of two groups (e.g., Ad A vs. Ad B). Interaction: Tooltips on conceptual SPSS table values. Justification: Provides a clear visual representation of A/B test results.
+        - ANOVA: Goal: Compare multiple groups. Method: Chart.js Bar Chart. Viz: Compares means of three or more groups (e.g., content types). Interaction: Tooltips on conceptual SPSS table values. Justification: Effectively shows differences between multiple campaign elements.
+        - Simple Linear Regression: Goal: Show relationship/prediction. Method: Chart.js Scatter Plot with a regression line. Viz: Plots the relationship between a predictor and an outcome. Interaction: Tooltips on conceptual SPSS table values. Justification: Intuitively visualizes the concept of linear prediction.
+        - Multiple Linear Regression: Goal: Compare predictor importance. Method: Chart.js Horizontal Bar Chart. Viz: Compares the standardized beta coefficients of multiple predictors. Interaction: Tooltips on conceptual SPSS table values. Justification: Simplifies the complex output by focusing on the practical takeaway of which factor is most influential.
+        - All statistical sections: Use styled HTML blocks for APA examples to distinguish them from explanatory text.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .sidebar-link.active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px; /* Max height */
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px; /* Smaller height on mobile */
+            }
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #14b8a6; /* teal-500 */
+            cursor: help;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 240px;
+            background-color: #1f2937; /* gray-800 */
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -120px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .apa-example {
+            background-color: #f1f5f9; /* slate-100 */
+            border-left: 4px solid #0d9488; /* teal-600 */
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border-radius: 0 4px 4px 0;
+        }
+        .spss-step {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .spss-step::before {
+            content: "➔";
+            position: absolute;
+            left: 0;
+            color: #14b8a6; /* teal-500 */
+        }
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f766e; /* teal-700 */
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid #99f6e4; /* teal-200 */
+        }
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #115e59; /* teal-800 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        th, td {
+            border: 1px solid #e2e8f0; /* slate-200 */
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9; /* slate-100 */
+            font-weight: 600;
+        }
+        /* Quiz specific styles */
+        .quiz-section {
+            background-color: #ecfdf5; /* emerald-50 */
+            border: 1px solid #a7f3d0; /* emerald-200 */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .quiz-question {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .quiz-option label {
+            display: block;
+            background-color: #f0fdf4; /* emerald-50 */
+            border: 1px solid #d1fae5; /* emerald-100 */
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .quiz-option label:hover {
+            background-color: #e0fdf5; /* emerald-100 */
+        }
+        .quiz-option input[type="radio"] {
+            margin-right: 0.75rem;
+        }
+        .quiz-feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.375rem;
+        }
+        .feedback-correct {
+            background-color: #d1fae5; /* green-100 */
+            color: #065f46; /* green-800 */
+        }
+        .feedback-incorrect {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
+        }
+        .quiz-explanation {
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 3px solid #6ee7b7; /* emerald-400 */
+        }
+        .quiz-buttons button {
+            background-color: #10b981; /* emerald-500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s ease;
+            margin-right: 0.5rem;
+        }
+        .quiz-buttons button:hover {
+            background-color: #059669; /* emerald-600 */
+        }
+        .quiz-buttons button:disabled {
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+        }
+        .quiz-status {
+            margin-top: 1rem;
+            font-weight: 500;
+            color: #065f46; /* emerald-800 */
+        }
+        .quiz-attempts-info {
+            font-size: 0.85em;
+            color: #4b5563; /* gray-600 */
+            margin-top: 0.5rem;
+        }
+        /* AI Simulation styles */
+        .simulation-controls {
+            background-color: #f0f9ff; /* sky-50 */
+            border: 1px solid #bae6fd; /* sky-200 */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .simulation-controls select,
+        .simulation-controls button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        .simulation-controls select {
+            border: 1px solid #cbd5e1; /* slate-300 */
+            background-color: white;
+        }
+        .simulation-controls button {
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+        .simulation-controls button:hover {
+            background-color: #0284c7; /* sky-700 */
+        }
+        .simulation-controls button:disabled {
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+        }
+        .simulation-output {
+            background-color: white;
+            border: 1px solid #e2e8f0; /* slate-200 */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .simulation-output h3 {
+            color: #0f766e;
+            border-bottom: 1px solid #99f6e4;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .download-button {
+            background-color: #10b981; /* emerald-500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s ease;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        .download-button:hover {
+            background-color: #059669; /* emerald-600 */
+        }
+        .download-button:disabled {
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+        }
+        footer {
+            background-color: #1e293b; /* slate-800 */
+            color: #cbd5e1; /* slate-300 */
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="w-full md:w-80 bg-slate-800 text-slate-100 p-6 space-y-2 fixed md:sticky top-0 h-screen overflow-y-auto transition-transform transform -translate-x-full md:translate-x-0 z-20 shadow-xl">
+            <button id="closeSidebar" class="md:hidden absolute top-4 right-4 text-slate-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h1 class="text-2xl font-bold text-white mb-6 border-b-2 border-slate-600 pb-3">AdPR Stats Module</h1>
+            <a href="#introduction" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">Introduction</a>
+            <a href="#levels-of-data" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">1. Levels of Data</a>
+            <a href="#chi-square" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">2. Chi-Square Test</a>
+            <a href="#t-test" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">3. Independent Samples T-Test</a>
+            <a href="#one-way-anova" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">4. One-Way ANOVA</a>
+            <a href="#simple-linear-regression" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">5. Simple Linear Regression</a>
+            <a href="#multiple-linear-regression" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">6. Multiple Linear Regression</a>
+            <a href="#ai-simulation" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">AI-powered Scenario Simulation</a>
+            <a href="#computational-text-analytics" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">Computational Text Analytics</a>
+            <a href="#conclusion" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">Conclusion</a>
+            <a href="#references" class="sidebar-link block py-2 px-4 rounded-md hover:bg-slate-700 transition-colors duration-200">References</a>
+        </nav>
+
+        <!-- Hamburger Menu for Mobile -->
+        <button id="openSidebar" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-slate-800 text-white rounded-md shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+            <div class="max-w-4xl mx-auto">
+
+                <section id="introduction" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">Introduction</h2>
+                    <p class="text-lg text-slate-600">This module provides a foundational understanding of key statistical concepts and their practical application in Advertising and Public Relations. We'll explore how to transform raw data into actionable intelligence, moving beyond intuition to justify strategies with quantifiable results.</p>
+                    <p>In the rapidly evolving landscape of Advertising and Public Relations (AdPR), the ability to interpret, analyze, and leverage data is no longer merely advantageous; it is fundamental. The modern AdPR professional navigates a complex environment where strategic decisions, from campaign development and audience targeting to message crafting and performance evaluation, must be grounded in empirical evidence. Statistical analysis provides the indispensable tools to transform raw data into actionable intelligence, allowing practitioners to move beyond intuition and justify their strategies with quantifiable results.</p>
+                    <p>Quantitative research methods are crucial for exploring relationships between variables and making predictions based on observed data. This analytical rigor enables AdPR professionals to uncover patterns in consumer behavior, assess the effectiveness of communication initiatives, optimize resource allocation, and ultimately demonstrate the return on investment (ROI) of their efforts. This learning module is meticulously designed to equip undergraduate AdPR students and early-career strategic digital communication professionals with a foundational understanding of key statistical concepts and their practical application using SPSS software.</p>
+                </section>
+
+                <section id="levels-of-data" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">1. Levels of Data</h2>
+                    <p class="text-lg text-slate-600">This section introduces the four fundamental levels of data measurement: Nominal, Ordinal, Interval, and Ratio. Understanding these levels is the critical first step as it dictates the types of statistical analyses that can be appropriately applied to your data.</p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th>Level of Measurement</th>
+                                    <th>Key Properties</th>
+                                    <th>Common AdPR Examples</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                <tr>
+                                    <td class="font-semibold">Nominal</td>
+                                    <td>Categorization without order (e.g., 'Male', 'Female').</td>
+                                    <td>Campaign Type, Gender, Preferred Social Media Platform.</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold">Ordinal</td>
+                                    <td>Ordered categories with unequal intervals (e.g., 'Low', 'Medium', 'High').</td>
+                                    <td>Customer Satisfaction (Likert scales), Brand Loyalty Rankings.</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold">Interval</td>
+                                    <td>Ordered categories with equal intervals but no true zero (e.g., Temperature in Celsius).</td>
+                                    <td>Standardized Test Scores (e.g., IQ), Calendar Years.</td>
+                                </tr>
+                                 <tr>
+                                    <td class="font-semibold">Ratio</td>
+                                    <td>Ordered categories with equal intervals and a true zero (e.g., Ad Spend).</td>
+                                    <td>Website Traffic, Sales Figures, Conversion Rates.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                     <p>The choice of statistical test is fundamentally determined by the level of measurement of the variables involved. Nominal data is limited to frequency counts and association tests (like Chi-Square). As data moves up the hierarchy to ordinal, interval, and especially ratio, the range of permissible mathematical operations expands, allowing for more sophisticated statistical analyses, including t-tests, ANOVAs, and various forms of regression. Researchers should therefore strive to collect data at the highest possible level of measurement that is appropriate for their research question to maximize analytical possibilities.</p>
+                </section>
+                
+                <section id="chi-square" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">2. Chi-Square Test for Independence</h2>
+                    <p class="text-lg text-slate-600">This section explores the Chi-Square test, used to determine if a significant association exists between two categorical variables, such as 'Social Media Platform' and 'Ad Recall'.</p>
+                    <h4>AdPR Scenario Example</h4>
+                    <p>An agency wants to know if there's a relationship between the social media platform a user prefers (Facebook, Instagram, TikTok) and whether they recalled seeing a recent ad (Yes/No). The null hypothesis (H₀) is that there's no association.</p>
+                    <h4>Key Insights & Visualization</h4>
+                    <p>A Chi-Square test compares the *observed* frequencies in your data to the frequencies that would be *expected* if there were no relationship between the variables. Large differences suggest a significant association. The chart below visualizes this comparison for our conceptual data, showing how ad recall on different platforms deviates from what would be expected by chance.</p>
+                    <div class="chart-container my-8">
+                        <canvas id="chiSquareChart"></canvas>
+                    </div>
+                    <h4>Step-by-Step SPSS Procedure (Conceptual Visuals)</h4>
+                    <p>To perform a Chi-Square Test of Independence in SPSS, your data should be organized with each row representing a unique subject and columns for the two categorical variables. For example, one column might be "Platform" with values like 'Facebook', 'Instagram', 'TikTok', and another column "AdRecall" with values like 'Yes', 'No'.</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li class="spss-step">Navigate to: <code>Analyze > Descriptive Statistics > Crosstabs</code>. This opens the main Crosstabs dialog box.</li>
+                        <li class="spss-step">In the dialog, you'll see a list of your variables. Move one categorical variable (e.g., "Platform") to the <code>Row(s)</code> box and the other (e.g., "AdRecall") to the <code>Column(s)</code> box.</li>
+                        <li class="spss-step">Click the <code>Statistics...</code> button. In the "Crosstabs: Statistics" dialog that appears, select the <code>Chi-square</code> checkbox. This tells SPSS to compute the Chi-Square statistic. Click <code>Continue</code>.</li>
+                        <li class="spss-step">Click the <code>Cells...</code> button. In the "Crosstabs: Cell Display" dialog, ensure <code>Observed</code> counts are selected (usually by default) and also select <code>Expected</code> counts. This will display both the actual counts and the counts expected if there were no association. Click <code>Continue</code>.</li>
+                        <li class="spss-step">Click <code>OK</code> in the main Crosstabs dialog box to run the analysis.</li>
+                    </ul>
+                    
+                    <h4>Interpreting SPSS Output: Observed vs. Expected Frequencies, Chi-Square Statistic, and p-value</h4>
+                    <p>The SPSS output will typically present two main tables: the **Crosstabulation** table and the **Chi-Square Tests** table.</p>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Crosstabulation (Counts)</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Platform * AdRecall Crosstabulation</th><th>AdRecall: Yes</th><th>AdRecall: No</th><th>Total</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Platform: Facebook</td><td>Observed: 70<br>Expected: 65.0</td><td>Observed: 30<br>Expected: 35.0</td><td>100</td></tr>
+                                <tr><td>Platform: Instagram</td><td>Observed: 80<br>Expected: 75.0</td><td>Observed: 20<br>Expected: 25.0</td><td>100</td></tr>
+                                <tr><td>Platform: TikTok</td><td>Observed: 60<br>Expected: 65.0</td><td>Observed: 40<br>Expected: 35.0</td><td>100</td></tr>
+                                <tr><td>Total</td><td>210</td><td>90</td><td>300</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Crosstabulation Table:</strong> This table shows the *observed* (actual) counts for each combination of categories (e.g., 70 users on Facebook recalled the ad). It also shows *expected* counts (e.g., 65.0 users on Facebook would be expected to recall the ad if platform and recall were completely independent). Significant differences between observed and expected counts suggest an association.</li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Chi-Square Tests</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th></th><th>Value</th><th>df</th><th>Asymptotic Significance (2-sided)</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Pearson Chi-Square</td><td>18.50</td><td>2</td><td>.000</td></tr>
+                                <tr><td>Likelihood Ratio</td><td>19.12</td><td>2</td><td>.000</td></tr>
+                                <tr><td>N of Valid Cases</td><td>300</td><td></td><td></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Pearson Chi-Square Value (18.50):</strong> This is the test statistic. A larger value indicates a greater difference between observed and expected frequencies, suggesting a stronger association.</li>
+                        <li><strong>df (Degrees of Freedom) (2):</strong> This value is calculated as (rows - 1) * (columns - 1). It determines the shape of the Chi-Square distribution.</li>
+                        <li><strong>Asymptotic Significance (2-sided) (.000):</strong> This is the *p*-value. Compare this to your alpha level (typically .05).
+                            <ul class="list-circle list-inside ml-4">
+                                <li>If *p* ≤ .05 (like .000 in this example), you **reject the null hypothesis**. This means there is a statistically significant association between the social media platform and ad recall.</li>
+                                <li>If *p* > .05, you fail to reject the null hypothesis, meaning no significant association.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>Reporting in APA 7th Edition (with Cramer's V)</h4>
+                    <p>When reporting a Chi-Square test, include the chi-square statistic (*χ²*), degrees of freedom (*df*), sample size (*N*), and the exact *p*-value. Always report an effect size like Cramer's V (*V*) to indicate the strength of the association. Small effect: *V* =.10; Medium effect: *V* =.30; Large effect: *V* =.50.</p>
+                    <div class="apa-example">A chi-square test of independence was performed to examine the relation between preferred social media platform and ad recall. The relation between these variables was significant, *χ²*(2, *N* = 300) = 18.50, *p* < .001, Cramer's *V* = .25. This indicates a medium-strength association.</div>
+                     
+                </section>
+                
+                <section id="t-test" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">3. Independent Samples T-Test</h2>
+                    <p class="text-lg text-slate-600">The t-test is the statistical backbone of A/B testing, allowing us to compare the means of two independent groups, like the performance of two different ad versions.</p>
+                    <h4>AdPR Scenario Example</h4>
+                    <p>An agency tests two ad versions (A and B) to see which yields a higher average Click-Through Rate (CTR). The null hypothesis (H₀) is that there's no difference in mean CTR between the two ads.</p>
+                    <h4>Key Insights & Visualization</h4>
+                    <p>The t-test determines if the observed difference in means is statistically significant or likely due to random chance. The bar chart below shows the mean CTR for each ad version from our conceptual data, providing a clear visual comparison.</p>
+                    <div class="chart-container my-8">
+                        <canvas id="tTestChart"></canvas>
+                    </div>
+                    <h4>Step-by-Step SPSS Procedure (Conceptual Visuals)</h4>
+                    <p>To run an Independent Samples T-Test in SPSS, your data should have one column for the continuous dependent variable (e.g., "CTR") and another for the categorical grouping variable (e.g., "AdVersion"), which should be numerically coded (e.g., 0 for 'Ad Version A' and 1 for 'Ad Version B').</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li class="spss-step">Navigate to: <code>Analyze > Compare Means > Independent-Samples T Test</code>. This opens the "Independent-Samples T Test" dialog box.</li>
+                        <li class="spss-step">Move your continuous dependent variable (e.g., "CTR") to the <code>Test Variable(s)</code> box.</li>
+                        <li class="spss-step">Move your categorical independent variable (e.g., "AdVersion") to the <code>Grouping Variable</code> box.</li>
+                        <li class="spss-step">Click the <code>Define Groups...</code> button. In the "Define Groups" dialog, enter the numerical codes for your two groups (e.g., '0' for Group 1 and '1' for Group 2). Click <code>Continue</code>.</li>
+                        <li class="spss-step">Click <code>OK</code> in the main dialog box to run the analysis.</li>
+                    </ul>
+                    
+                    <h4>Interpreting SPSS Output: Group Statistics, Levene's Test, t-statistic, and p-value</h4>
+                    <p>The SPSS output will present two main tables: **Group Statistics** and **Independent Samples Test**.</p>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Group Statistics</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th></th><th>N</th><th>Mean</th><th>Std. Deviation</th><th>Std. Error Mean</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>CTR: Ad Version A</td><td>100</td><td>5.50</td><td>1.20</td><td>0.12</td></tr>
+                                <tr><td>CTR: Ad Version B</td><td>100</td><td>4.80</td><td>1.35</td><td>0.14</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Group Statistics Table:</strong> Provides descriptive statistics for each group (sample size 'N', 'Mean', 'Standard Deviation'). These are the raw numbers you're comparing.</li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Independent Samples Test</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th></th><th>Levene's Test for Equality of Variances</th><th>t-test for Equality of Means</th></tr>
+                                <tr><th></th><th>F</th><th>Sig.</th><th>t</th><th>df</th><th>Sig. (2-tailed)</th><th>Mean Difference</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>CTR: Equal variances assumed</td><td>0.85</td><td>.357</td><td>3.80</td><td>198</td><td>.000</td><td>0.70</td></tr>
+                                <tr><td>CTR: Equal variances not assumed</td><td></td><td></td><td>3.75</td><td>197.5</td><td>.000</td><td>0.70</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Levene's Test for Equality of Variances:</strong>
+                            <ul class="list-circle list-inside ml-4">
+                                <li><strong>Sig. (p-value):</strong> If *p* ≤ .05 (e.g., .03), variances are unequal. If *p* > .05 (like .357 here), variances are assumed equal.</li>
+                                <li><strong>Decision:</strong> Since our conceptual *p* = .357 (> .05), we assume equal variances and will interpret the 'Equal variances assumed' row for the t-test.</li>
+                            </ul>
+                        </li>
+                        <li><strong>t-test for Equality of Means:</strong> (Interpret the row based on Levene's Test result)
+                            <ul class="list-circle list-inside ml-4">
+                                <li><strong>t (3.80):</strong> The calculated t-statistic.</li>
+                                <li><strong>df (198):</strong> Degrees of freedom.</li>
+                                <li><strong>Sig. (2-tailed) (.000):</strong> This is the *p*-value for the t-test.
+                                    <ul class="list-square list-inside ml-4">
+                                        <li>If *p* ≤ .05 (like .000), **reject H₀**. There is a statistically significant difference between the means.</li>
+                                        <li>If *p* > .05, fail to reject H₀ (no significant difference).</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Mean Difference (0.70):</strong> The difference between the means of Ad Version A and Ad Version B.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>Reporting in APA 7th Edition (with Cohen's d)</h4>
+                    <p>When reporting, include the means and standard deviations for each group, the F-statistic and p-value for Levene's test, and the t-statistic, degrees of freedom, p-value, and Cohen's d effect size for the t-test. Cohen's d: Small = 0.20, Medium = 0.50, Large = 0.80.</p>
+                    <div class="apa-example">An independent-samples *t*-test was conducted to compare average click-through rates (CTR) for Ad Version A (*M* = 5.50, *SD* = 1.20) and Ad Version B (*M* = 4.80, *SD* = 1.35). Levene's test indicated equal variances, *F*(1, 198) = 0.85, *p* = .357. There was a significant difference in CTR, *t*(198) = 3.80, *p* < .001, Cohen's *d* = 0.55, representing a medium effect size.</div>
+                     
+                </section>
+                
+                <section id="one-way-anova" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">4. One-Way ANOVA</h2>
+                    <p class="text-lg text-slate-600">One-Way ANOVA extends the t-test, allowing us to compare the means of three or more independent groups, such as testing the effectiveness of different content types.</p>
+                    <h4>AdPR Scenario Example</h4>
+                    <p>An AdPR team compares the average engagement rate of three content types: Infographics, Videos, and Polls. The null hypothesis (H₀) is that there is no difference in mean engagement among the content types.</p>
+                    <h4>Key Insights & Visualization</h4>
+                    <p>The ANOVA F-test tells us if there is an overall significant difference *somewhere* among the groups. The bar chart below visualizes the mean engagement for each content type, highlighting which strategies appear most effective.</p>
+                    <div class="chart-container my-8">
+                        <canvas id="anovaChart"></canvas>
+                    </div>
+                    <h4>Step-by-Step SPSS Procedure (Conceptual Visuals)</h4>
+                    <p>To conduct a One-Way ANOVA in SPSS, your data should contain one column for the continuous dependent variable (e.g., "EngagementRate") and another for the categorical independent variable (e.g., "ContentType"), with numeric codes representing each content type (e.g., 1 for 'Infographics', 2 for 'Videos', 3 for 'Polls').</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li class="spss-step">Navigate to: <code>Analyze > Compare Means > One-Way ANOVA</code>. This opens the "One-Way ANOVA" dialog box.</li>
+                        <li class="spss-step">Move your continuous dependent variable (e.g., "EngagementRate") to the <code>Dependent List</code> box.</li>
+                        <li class="spss-step">Move your categorical independent variable (e.g., "ContentType") to the <code>Factor</code> box.</li>
+                        <li class="spss-step">Click the <code>Post Hoc...</code> button. In the "Post Hoc Multiple Comparisons" dialog, select <code>Tukey</code> (a common choice for equal variances) or <code>Games-Howell</code> (if variances are unequal). Click <code>Continue</code>.</li>
+                        <li class="spss-step">Click the <code>Options...</code> button. In the "Options" dialog, select <code>Descriptives</code> (for group means/SDs), <code>Homogeneity of variance test</code> (for Levene's Test), and optionally <code>Means plot</code>. Click <code>Continue</code>.</li>
+                        <li class="spss-step">Click <code>OK</code> in the main dialog box to run the analysis.</li>
+                    </ul>
+
+                    <h4>Interpreting SPSS Output: Descriptives, ANOVA Table, and Post-Hoc Tests</h4>
+                    <p>The SPSS output for a One-Way ANOVA provides **Descriptive Statistics**, **Levene's Test**, the **ANOVA Table**, and **Post-Hoc Tests**.</p>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Descriptives</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Engagement Rate</th><th>N</th><th>Mean</th><th>Std. Deviation</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Infographics</td><td>50</td><td>4.50</td><td>1.10</td></tr>
+                                <tr><td>Videos</td><td>50</td><td>6.20</td><td>1.30</td></tr>
+                                <tr><td>Polls</td><td>50</td><td>3.80</td><td>0.95</td></tr>
+                                <tr><td>Total</td><td>150</td><td>4.83</td><td>1.45</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Descriptives Table:</strong> Shows the sample size (N), Mean, and Standard Deviation for the dependent variable ('Engagement Rate') for each group ('Infographics', 'Videos', 'Polls'). This gives you an initial idea of group differences.</li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Test of Homogeneity of Variances (Levene's Test)</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Levene Statistic</th><th>df1</th><th>df2</th><th>Sig.</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1.20</td><td>2</td><td>147</td><td>.304</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Levene's Test Sig. (.304):</strong> If *p* ≤ .05, variances are unequal (use Games-Howell for post-hoc). If *p* > .05 (like .304), variances are assumed equal (use Tukey HSD for post-hoc).</li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: ANOVA</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Source</th><th>Sum of Squares</th><th>df</th><th>Mean Square</th><th>F</th><th>Sig.</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Between Groups</td><td>55.60</td><td>2</td><td>27.80</td><td>15.33</td><td>.000</td></tr>
+                                <tr><td>Within Groups</td><td>266.60</td><td>147</td><td>1.81</td><td></td><td></td></tr>
+                                <tr><td>Total</td><td>322.20</td><td>149</td><td></td><td></td><td></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>F (15.33):</strong> The F-statistic. A larger F value indicates more variance between groups compared to within groups.</li>
+                        <li><strong>Sig. (.000):</strong> This is the *p*-value for the overall ANOVA.
+                            <ul class="list-circle list-inside ml-4">
+                                <li>If *p* ≤ .05 (like .000), **reject H₀**. There is a statistically significant difference in mean engagement rates *among the content types*. This means at least one group mean is different from the others, but it doesn't tell you *which* ones.</li>
+                                <li>If *p* > .05, you fail to reject H₀.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Multiple Comparisons (Tukey HSD)</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>(I) Content Type</th><th>(J) Content Type</th><th>Mean Difference (I-J)</th><th>Sig.</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Infographics</td><td>Videos</td><td>-1.70*</td><td>.000</td></tr>
+                                <tr><td></td><td>Polls</td><td>0.70*</td><td>.028</td></tr>
+                                <tr><td>Videos</td><td>Infographics</td><td>1.70*</td><td>.000</td></tr>
+                                <tr><td></td><td>Polls</td><td>2.40*</td><td>.000</td></tr>
+                                <tr><td>Polls</td><td>Infographics</td><td>-0.70*</td><td>.028</td></tr>
+                                <tr><td></td><td>Videos</td><td>-2.40*</td><td>.000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Multiple Comparisons (Post-Hoc Tests):</strong> (Only interpret if overall ANOVA *p* ≤ .05)
+                            <ul class="list-circle list-inside ml-4">
+                                <li>This table shows pairwise comparisons. Look at the 'Sig.' column for each pair.</li>
+                                <li>For example, 'Infographics' vs. 'Videos' has *p* = .000 (< .05), meaning their mean engagement rates are significantly different. Videos had a higher mean (6.20) than Infographics (4.50).</li>
+                                <li>'Infographics' vs. 'Polls' has *p* = .028 (< .05), indicating a significant difference.</li>
+                                <li>'Videos' vs. 'Polls' has *p* = .000 (< .05), indicating a significant difference.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>Reporting in APA 7th Edition (with Eta-squared)</h4>
+                    <p>Report the F-statistic, degrees of freedom, and p-value for the overall ANOVA. If significant, summarize descriptive statistics (means, SDs) for each group and report the post-hoc test results, including the mean differences and p-values. Include eta-squared (η²) as effect size. Small: η² = 0.01; Medium: η² = 0.06; Large: η² = 0.14.</p>
+                    <div class="apa-example">A one-way ANOVA revealed a statistically significant effect of content type on engagement rate, *F*(2, 147) = 15.33, *p* < .001, η² = .10. Post hoc Tukey HSD tests indicated Videos (*M* = 6.20) had significantly higher engagement than Infographics (*M* = 4.50, *p* < .001) and Polls (*M* = 3.80, *p* < .001). Infographics also had significantly higher engagement than Polls (*p* = .028).</div>
+                     
+                </section>
+                
+                <section id="simple-linear-regression" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">5. Simple Linear Regression</h2>
+                    <p class="text-lg text-slate-600">Simple Linear Regression allows us to predict a continuous outcome (e.g., conversions) from a single continuous predictor (e.g., ad impressions), moving from comparison to forecasting.</p>
+                    <h4>AdPR Scenario Example</h4>
+                    <p>A marketing team wants to predict website conversions based on the number of ad impressions. The null hypothesis (H₀) is that there is no linear relationship between impressions and conversions.</p>
+                    <h4>Key Insights & Visualization</h4>
+                    <p>Regression analysis finds the "line of best fit" that describes the relationship between the two variables. The R-squared (R²) value tells us what percentage of the change in conversions can be explained by ad impressions. The scatter plot below visualizes this relationship.</p>
+                    <div class="chart-container my-8">
+                        <canvas id="slrChart"></canvas>
+                    </div>
+                    <h4>Step-by-Step SPSS Procedure (Conceptual Visuals)</h4>
+                    <p>To perform a Simple Linear Regression in SPSS, you need one continuous dependent variable (e.g., "Conversions") and one continuous independent variable (e.g., "AdImpressions").</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li class="spss-step">Navigate to: <code>Analyze > Regression > Linear...</code>. This opens the "Linear Regression" dialog box.</li>
+                        <li class="spss-step">Move your continuous dependent variable (e.g., "Conversions") to the <code>Dependent</code> box.</li>
+                        <li class="spss-step">Move your continuous independent variable (e.g., "AdImpressions") to the <code>Independent(s)</code> box.</li>
+                        <li class="spss-step">Click the <code>Statistics...</code> button. In the "Linear Regression: Statistics" dialog, ensure <code>Estimates</code> and <code>Model fit</code> are selected. Also select <code>Descriptives</code> for summary stats and <code>R squared change</code>. Click <code>Continue</code>.</li>
+                        <li class="spss-step">Click <code>OK</code> in the main dialog box to run the analysis.</li>
+                    </ul>
+
+                    <h4>Interpreting SPSS Output: Model Summary, ANOVA Table, Coefficients Table</h4>
+                    <p>The SPSS output for Simple Linear Regression will provide three key tables: **Model Summary**, **ANOVA**, and **Coefficients**.</p>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Model Summary</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Model</th><th>R</th><th>R Square</th><th>Adjusted R Square</th><th>Std. Error of the Estimate</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>.548</td><td>.301</td><td>.298</td><td>15.20</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>R (.548):</strong> The correlation coefficient between Ad Impressions and Conversions. Indicates a moderate positive linear relationship.</li>
+                        <li><strong>R Square (.301):</strong> This is the coefficient of determination. It means 30.1% of the variance in Website Conversions can be explained by Ad Impressions.</li>
+                        <li><strong>Adjusted R Square (.298):</strong> A more conservative estimate of R-squared, especially useful in multiple regression.</li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: ANOVA</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Source</th><th>Sum of Squares</th><th>df</th><th>Mean Square</th><th>F</th><th>Sig.</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Regression</td><td>19785.00</td><td>1</td><td>19785.00</td><td>85.32</td><td>.000</td></tr>
+                                <tr><td>Residual</td><td>46000.00</td><td>198</td><td>232.32</td><td></td><td></td></tr>
+                                <tr><td>Total</td><td>65785.00</td><td>199</td><td></td><td></td><td></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>F (85.32):</strong> The F-statistic for the overall model.</li>
+                        <li><strong>Sig. (.000):</strong> This is the *p*-value for the overall model.
+                            <ul class="list-circle list-inside ml-4">
+                                <li>If *p* ≤ .05 (like .000), **reject H₀**. The overall regression model is statistically significant, meaning Ad Impressions significantly predict Website Conversions.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Coefficients</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th></th><th>Unstandardized Coefficients</th><th>Standardized Coefficients</th><th></th><th></th></tr>
+                                <tr><th>Model</th><th>B</th><th>Std. Error</th><th>Beta</th><th>t</th><th>Sig.</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>(Constant)</td><td>5.23</td><td>2.50</td><td></td><td>2.09</td><td>.038</td></tr>
+                                <tr><td>AdImpressions</td><td>0.002</td><td>0.0002</td><td>.548</td><td>9.24</td><td>.000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Unstandardized Coefficients (B):</strong>
+                            <ul class="list-circle list-inside ml-4">
+                                <li><strong>(Constant) (5.23):</strong> The Y-intercept. When Ad Impressions are 0, Website Conversions are predicted to be 5.23.</li>
+                                <li><strong>AdImpressions (0.002):</strong> The slope. For every 1-unit increase in Ad Impressions, Website Conversions are predicted to increase by 0.002.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Sig. (.000 for AdImpressions):</strong> The *p*-value for the individual predictor.
+                            <ul class="list-circle list-inside ml-4">
+                                <li>If *p* ≤ .05 (like .000), the predictor (Ad Impressions) **significantly contributes** to the model.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Beta (.548):</strong> The standardized coefficient. This helps compare the relative strength of predictors (more relevant in multiple regression).</li>
+                    </ul>
+
+                    <h4>Reporting in APA 7th Edition</h4>
+                    <p>Report the overall model significance (F-statistic, degrees of freedom, p-value, R-squared) and the individual predictor's coefficients (unstandardized b, t-statistic, p-value). State the regression equation.</p>
+                    <div class="apa-example">A simple linear regression was conducted to predict website conversions from ad impressions. The overall model was significant, *F*(1, 198) = 85.32, *p* < .001, with ad impressions explaining 30.1% of the variance (*R²* = .301). The regression equation was: Conversions = 5.23 + 0.002(Ad Impressions). Ad impressions significantly predicted conversions, *b* = 0.002, *t* = 9.24, *p* < .001.</div>
+                     
+                </section>
+                
+                <section id="multiple-linear-regression" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">6. Multiple Linear Regression</h2>
+                    <p class="text-lg text-slate-600">This powerful technique predicts a continuous outcome from multiple independent variables, allowing us to see the unique contribution of each factor while controlling for others.</p>
+                    <h4>AdPR Scenario Example</h4>
+                    <p>A brand manager wants to predict brand sentiment score based on PR mentions, social media engagement, and ad recall scores. The goal is to see which factor is the most influential predictor.</p>
+                    <h4>Key Insights & Visualization</h4>
+                    <p>Multiple regression assesses the unique impact of each predictor. By comparing the standardized beta (β) coefficients, we can determine the relative importance of each factor. The chart below visualizes these beta coefficients, clearly showing which predictor has the strongest unique effect on brand sentiment.</p>
+                    <div class="chart-container my-8">
+                        <canvas id="mlrChart"></canvas>
+                    </div>
+                    <h4>Step-by-Step SPSS Procedure (Conceptual Visuals)</h4>
+                    <p>To perform a Multiple Linear Regression in SPSS, you need one continuous dependent variable (e.g., "BrandSentiment") and two or more continuous (or dummy-coded categorical) independent variables (e.g., "PositivePRMentions", "SocialMediaEngagement", "AdRecallScore").</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li class="spss-step">Navigate to: <code>Analyze > Regression > Linear...</code>. This opens the "Linear Regression" dialog box.</li>
+                        <li class="spss-step">Move your continuous dependent variable (e.g., "BrandSentiment") to the <code>Dependent</code> box.</li>
+                        <li class="spss-step">Move all your continuous independent variables (e.g., "PositivePRMentions", "SocialMediaEngagement", "AdRecallScore") to the <code>Independent(s)</code> box.</li>
+                        <li class="spss-step">Click the <code>Statistics...</code> button. In the "Linear Regression: Statistics" dialog, select <code>Estimates</code>, <code>Model fit</code>, <code>R squared change</code>, <code>Descriptives</code>, and importantly, <code>Collinearity diagnostics</code> (to check for multicollinearity). Click <code>Continue</code>.</li>
+                        <li class="spss-step">Click <code>OK</code> in the main dialog box to run the analysis.</li>
+                    </ul>
+
+                    <h4>Interpreting SPSS Output: Model Summary, ANOVA Table, Coefficients Table</h4>
+                    <p>The SPSS output for Multiple Linear Regression provides **Model Summary**, **ANOVA**, and **Coefficients** tables, similar to simple regression but with more details for multiple predictors.</p>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Model Summary</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Model</th><th>R</th><th>R Square</th><th>Adjusted R Square</th><th>Std. Error of the Estimate</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>.456</td><td>.208</td><td>.200</td><td>10.50</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>R (.456):</strong> The multiple correlation coefficient between Brand Sentiment and the combined set of predictors.</li>
+                        <li><strong>R Square (.208):</strong> 20.8% of the variance in Brand Sentiment is explained by all three predictors combined.</li>
+                        <li><strong>Adjusted R Square (.200):</strong> This is the preferred R-squared for multiple regression, adjusting for the number of predictors.</li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: ANOVA (Overall Model)</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th>Source</th><th>Sum of Squares</th><th>df</th><th>Mean Square</th><th>F</th><th>Sig.</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Regression</td><td>8500.00</td><td>3</td><td>2833.33</td><td>25.87</td><td>.000</td></tr>
+                                <tr><td>Residual</td><td>32500.00</td><td>296</td><td>109.79</td><td></td><td></td></tr>
+                                <tr><td>Total</td><td>41000.00</td><td>299</td><td></td><td></td><td></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>F (25.87):</strong> The F-statistic for the overall model.</li>
+                        <li><strong>Sig. (.000):</strong> The *p*-value for the overall model.
+                            <ul class="list-circle list-inside ml-4">
+                                <li>If *p* ≤ .05 (like .000), **reject H₀**. The overall regression model is statistically significant, meaning the set of predictors significantly explains variance in Brand Sentiment.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <h5 class="text-md font-medium text-slate-700 mt-4 mb-1">Conceptual SPSS Output Table: Coefficients</h5>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr><th></th><th>Unstandardized Coefficients</th><th>Standardized Coefficients</th><th></th><th></th><th>Collinearity Statistics</th></tr>
+                                <tr><th>Model</th><th>B</th><th>Std. Error</th><th>Beta</th><th>t</th><th>Sig.</th><th>Tolerance</th><th>VIF</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>(Constant)</td><td>15.00</td><td>3.50</td><td></td><td>4.29</td><td>.000</td><td></td><td></td></tr>
+                                <tr><td>PositivePRMentions</td><td>0.15</td><td>0.02</td><td>.42</td><td>6.89</td><td>.000</td><td>.85</td><td>1.18</td></tr>
+                                <tr><td>SocialMediaEngagement</td><td>0.02</td><td>0.02</td><td>.05</td><td>0.95</td><td>.343</td><td>.75</td><td>1.33</td></tr>
+                                <tr><td>AdRecallScore</td><td>0.08</td><td>0.02</td><td>.25</td><td>4.12</td><td>.000</td><td>.90</td><td>1.11</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Unstandardized Coefficients (B):</strong>
+                            <ul class="list-circle list-inside ml-4">
+                                <li><strong>(Constant) (15.00):</strong> The predicted Brand Sentiment when all predictors are zero.</li>
+                                <li><strong>PositivePRMentions (0.15):</strong> For every 1-unit increase in Positive PR Mentions, Brand Sentiment is predicted to increase by 0.15, holding other predictors constant.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Standardized Coefficients (Beta, β):</strong>
+                            <ul class="list-circle list-inside ml-4">
+                                <li><strong>PositivePRMentions (.42):</strong> This predictor has the strongest unique effect on Brand Sentiment because it has the largest absolute Beta value.</li>
+                                
+                                <li><strong>SocialMediaEngagement (.05):</strong> Smallest Beta, indicating least unique effect.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Sig. (.000 for PositivePRMentions, .000 for AdRecallScore):</strong> The *p*-value for each individual predictor.
+                            <ul class="list-circle list-inside ml-4">
+                                <li>If *p* ≤ .05 (like .000), that predictor **uniquely and significantly contributes** to the model. Here, Positive PR Mentions and Ad Recall Score are significant.</li>
+                                <li>Social Media Engagement has *p* = .343 (> .05), so it is not a significant unique predictor.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Collinearity Statistics (Tolerance & VIF):</strong> Check for multicollinearity. Tolerance < .10 or VIF > 10 indicate a problem. In this example, VIFs are all low (e.g., 1.18), indicating no multicollinearity issue.</li>
+                    </ul>
+
+                    <h4>Reporting in APA 7th Edition</h4>
+                    <p>Report overall model significance (F-statistic, degrees of freedom, p-value, R-squared, Adjusted R-squared). Then, for each predictor, report its unstandardized b, standardized β, t-statistic, and p-value. Include a note on multicollinearity.</p>
+                    <div class="apa-example">A multiple regression analysis was conducted to predict brand sentiment score from positive PR mentions, social media engagement rate, and ad recall score. The overall model was significant, *F*(3, 296) = 25.87, *p* < .001, *R²* = .208, Adj. *R²* = .200. Positive PR mentions (*b* = 0.15, *β* = .42, *t* = 6.89, *p* < .001) and ad recall score (*b* = 0.08, *β* = .25, *t* = 4.12, *p* < .001) were significant positive predictors of brand sentiment. Social media engagement rate was not a significant predictor (*b* = 0.02, *β* = .05, *t* = 0.95, *p* = .343). Collinearity diagnostics indicated that multicollinearity was not a concern (all VIF < 2.0). These findings suggest that increasing positive PR mentions and improving ad recall are key strategies for enhancing brand sentiment, with PR mentions having the strongest unique impact."</div>
+                     
+                </section>
+
+                <section id="ai-simulation" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">AI-powered Statistics Scenario Simulation</h2>
+                    <p class="text-lg text-slate-600">This module enables users to explore statistical applications in real-world communication contexts through AI-generated, domain-specific simulations. Designed to support learning in advertising, public relations, marketing, and strategic communication, the tool provides guided practice with statistical analysis using SPSS.</p>
+                    
+                    <div class="simulation-controls flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                        <div class="flex-1 w-full">
+                            <label for="test-select" class="block text-slate-700 text-sm font-bold mb-2">Statistical Test:</label>
+                            <select id="test-select" class="w-full">
+                                <option value="">Select a Test</option>
+                                <option value="chi-square">Chi-Square Test for Independence</option>
+                                <option value="t-test">Independent Samples T-Test</option>
+                                <option value="one-way-anova">One-Way ANOVA</option>
+                                <option value="simple-linear-regression">Simple Linear Regression</option>
+                                <option value="multiple-linear-regression">Multiple Linear Regression</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 w-full">
+                            <label for="domain-select" class="block text-slate-700 text-sm font-bold mb-2">Domain:</label>
+                            <select id="domain-select" class="w-full">
+                                <option value="">Select a Domain</option>
+                                <option value="Advertising">Advertising</option>
+                                <option value="Public Relations">Public Relations</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Strategic Communication">Strategic Communication</option>
+                            </select>
+                        </div>
+                        <div class="sm:self-end w-full sm:w-auto">
+                            <button id="generate-scenario-btn" class="w-full">Generate Scenario</button>
+                        </div>
+                    </div>
+
+                    <div id="simulation-output" class="simulation-output hidden">
+                        <!-- Loading spinner -->
+                        <div id="loading-spinner" class="hidden text-center p-8">
+                            <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-sky-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="mt-4 text-slate-600 font-semibold">Generating your custom learning module... Please wait.</p>
+                        </div>
+                        
+                        <!-- Error Message Placeholder -->
+                        <div id="error-message" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md" role="alert">
+                          <p class="font-bold">Error</p>
+                          <p id="error-text"></p>
+                        </div>
+
+                        <!-- Content will be populated here -->
+                        <div id="simulation-content">
+                            <h3 class="text-2xl font-bold">Generated Scenario</h3>
+                            <div id="scenario-text" class="mb-4 prose max-w-none"></div>
+
+                            <h3 class="text-2xl font-bold mt-6">Data Structure</h3>
+                            <div id="data-structure-text" class="mb-4 prose max-w-none"></div>
+                            <div id="hypotheses-text" class="mb-4 prose max-w-none"></div>
+
+                            <h3 class="text-2xl font-bold mt-6">SPSS Instructional Guide</h3>
+                            <pre id="spss-guide-text" class="bg-slate-50 p-4 rounded-md text-sm overflow-x-auto mb-4"></pre>
+
+                            <h3 class="text-2xl font-bold mt-6">Synthetic Dataset (30 Observations)</h3>
+                            <p class="text-slate-600 mb-2">Download a sample dataset tailored to this scenario. This dataset is for instructional use with SPSS or other statistical tools.</p>
+                            <button id="download-dataset-btn" class="download-button" disabled>
+                                Download Dataset (.csv)
+                                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l3-3m-3 3l-3-3m0 6h9a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <p class="text-xs text-slate-500 mt-2">Note: SPSS .sav format is proprietary and cannot be generated directly in a web browser. Use the .csv and import it into SPSS.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="computational-text-analytics" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">Computational Text Analytics</h2>
+                    <p class="text-lg text-slate-600">Explore the foundational concepts and practical applications of computational text analytics, a rapidly growing field that leverages computational methods to extract insights from unstructured text data. This complements statistical analysis by providing tools to understand qualitative data at scale.</p>
+                    <div class="mt-6 text-center">
+                        <a href="https://dr-imran-analytics-lab.netlify.app/" target="_blank" class="inline-block bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors duration-300">
+                            Launch Analytics Lab
+                            <svg class="inline-block ml-2 w-5 h-5 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                    <p class="text-center text-sm text-slate-500 mt-4">Click the button above to visit the Dr. Imran Analytics Lab and explore computational text analytics tools.</p>
+                </section>
+
+                <section id="conclusion" class="content-section space-y-4">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">Conclusion</h2>
+                    <p class="text-lg text-slate-600">This module has provided a foundational toolkit for applying statistical analysis in AdPR. By mastering these methods, professionals can move from intuition-based decisions to evidence-based strategies that drive measurable results.</p>
+                    <p>Proficiency in these statistical methods empowers AdPR professionals to accurately segment audiences, rigorously compare campaign effectiveness, develop predictive models, justify strategic recommendations, and measure ROI. A recurring theme has been the critical importance of understanding data measurement levels, selecting appropriate tests, and interpreting results with nuance, including both statistical and practical significance (effect sizes). The field of AdPR is dynamic, and continuous learning in statistical analysis and data science is indispensable for staying competitive and adapting to emerging challenges.</p>
+                </section>
+
+                <section id="references" class="content-section space-y-2 text-sm">
+                    <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">References</h2>
+                    <ul class="list-none space-y-3">
+                        <li>American Psychological Association. (n.d.). *Cramér's V*. In *APA dictionary of psychology*. Retrieved May 26, 2025, from https://dictionary.apa.org/cramers-v</li>
+                        <li>American Psychological Association. (n.d.). *Number and statistics guide, APA Style 7th edition*. Retrieved May 26, 2025, from https://apastyle.apa.org/instructional-aids/numbers-statistics-guide.pdf</li>
+                        <li>Best Dissertation Writers. (n.d.). *One way ANOVA: A comprehensive guide with post hoc testing*. Retrieved May 26, 2025, from https://bestdissertationwriter.com/one-way-anova/</li>
+                        <li>Datatab. (n.d.). *t-Test for independent samples*. Retrieved May 26, 2025, from https://datatab.net/tutorial/unpaired-t-test</li>
+                        <li>Datanovia. (n.d.). *Independent T-Test assumptions: The best tutorial to read*. Retrieved May 26, 2025, from https://www.datanovia.com/en/lessons/t-test-assumptions/independent-t-test-assumptions/</li>
+                        <li>Fiveable. (n.d.). *Analysis of variance (ANOVA)*. Retrieved May 26, 2025, from https://library.fiveable.me/advanced-communication-research-methods/unit-7/analysis-variance-anova/study-guide/JlD4sSS4adoSxslq</li>
+                        <li>Fiveable. (n.d.). *Analysis of variance (ANOVA)*. Retrieved May 26, 2025, from https://library.fiveable.me/communication-research-methods/unit-8/analysis-variance-anova/study-guide/QCq22vW47qQzAfXX</li>
+                        <li>Fiveable. (n.d.). *Regression analysis*. Retrieved May 26, 2025, from https://library.fiveable.me/communication-research-methods/unit-8/regression-analysis/study-guide/RUfFtMJCMQOst2Mj</li>
+                        <li>Grupo Comunicar. (n.d.). *Why report the effect size?*. Retrieved May 26, 2025, from https://www.grupocomunicar.com/wp/school-of-authors/why-report-the-effect-size/</li>
+                        <li>Hesson-McInnis, M. (n.d.). *Reporting statistics in APA style*. Retrieved May 26, 2025, from https://about.illinoisstate.edu/mshesso-test2/reporting-statistics-in-apa-style/</li>
+                        <li>IBM. (n.d.). *One-way ANOVA: Post hoc tests*. Retrieved May 26, 2025, from https://www.ibm.com/docs/en/spss-statistics/beta?topic=anova-one-way-post-hoc-tests</li>
+                        <li>JMP. (n.d.). *Chi-Square test of independence | Introduction to statistics*. Retrieved May 26, 2025, from https://www.jmp.com/en/statistics-knowledge-portal/chi-square-test/chi-square-test-of-independence</li>
+                        <li>Kent State University Libraries. (n.d.). *Chi-Square test of independence - SPSS tutorials*. Retrieved May 26, 2025, from https://libguides.library.kent.edu/spss/chisquare</li>
+                        <li>Kent State University Libraries. (n.d.). *Independent samples t test - SPSS tutorials*. Retrieved May 26, 2025, from https://libguides.library.kent.edu/spss/independentttest</li>
+                        <li>Kordoutis, P. (n.d.). *Reporting statistics in psychology*. Retrieved May 26, 2025, from http://www.kordoutis.gr/Reporting_Statistics%20in%20Psychology.pdf</li>
+                        <li>Laerd Statistics. (n.d.). *Linear regression analysis in SPSS statistics - Procedure*. Retrieved May 26, 2025, from https://statistics.laerd.com/spss-tutorials/linear-regression-using-spss-statistics.php</li>
+                        <li>Laerd Statistics. (n.d.). *One-way MANOVA in SPSS statistics - Step-by-step procedure with screenshots*. Retrieved May 26, 2025, from https://statistics.laerd.com/spss-tutorials/one-way-manova-using-spss-statistics.php</li>
+                        <li>McGill University Library. (n.d.). *Independent samples T test - Getting started with SPSS*. Retrieved May 26, 2025, from https://libraryguides.mcgill.ca/c.php?g=728641&p=5226468</li>
+                        <li>National University. (n.d.). *Independent samples T-test - Statistics resources*. Retrieved May 26, 2025, from https://resources.nu.edu/statsresources/IndependentSamples</li>
+                        <li>National University. (n.d.). *Multiple linear regression - Statistics resources*. Retrieved May 26, 2025, from https://resources.nu.edu/statsresources/multiplelinear</li>
+                        <li>National University. (n.d.). *One-Way ANOVA*. Retrieved May 26, 2025, from https://resources.nu.edu/statsresources/One-WayANOVA#:~:text=The%20One%2DWay%20ANOVA%20is,which%20groups%20are%20significantly%20different.</li>
+                        <li>New York University Libraries. (n.d.). *SPSS statistical analysis guide*. Retrieved May 26, 2025, from https://guides.nyu.edu/spss</li>
+                        <li>Online SPSS. (n.d.). *How to run independent t test in SPSS*. Retrieved May 26, 2025, from https://www.onlinespss.com/how-to-run-independent-sample-t-test-in-spss/</li>
+                        <li>Open Educational Resources. (n.d.). *Independent-samples t-test – Introduction to statistics for the social sciences*. Retrieved May 26, 2025, from https://open.ocolearnok.org/psycstats/chapter/chapter-11-independent-samples-t-test/</li>
+                        <li>Penn State University. (n.d.). *10.2.1 - ANOVA assumptions | STAT 500*. Retrieved May 26, 2025, from https://online.stat.psu.edu/stat500/lesson/10/10.2/10.2.1</li>
+                        <li>ResearchGate. (2024). *Multiple regression analysis to the influence of communication management on project success*. Retrieved from(https://www.researchgate.net/publication/377467208_Multiple_Regression_Analysis_to_The_Influence_of_Communication_Management_on_Project_Success)</li>
+                        <li>Saskatchewan Open Education Resources. (2022). *SPSS Lesson 11: Linear Regression*. Retrieved from [https://www.saskoer.ca/introtoappliedstatsforpsych/chapter/14-8-spss-lesson-11-linear-regression/](https://www.saskoer.ca/introtoappliedstatsforpsych/chapter/14-8-spss-lesson-11-linear-regression/)</li>
+                        <li>Scribbr. (n.d.). *Levels of Measurement | Nominal, Ordinal, Interval and Ratio*. Retrieved May 26, 2025, from https://www.scribbr.com/statistics/levels-of-measurement/</li>
+                        <li>Scribbr. (n.d.). *Simple Linear Regression | An Easy Introduction & Examples*. Retrieved May 26, 2025, from https://www.scribbr.com/statistics/simple-linear-regression/</li>
+                        <li>Scribbr. (n.d.). *Reporting Statistics in APA Style*. Retrieved May 26, 2025, from https://studycrumb.com/reporting-statistics-in-apa-style</li>
+                        <li>SocSciStatistics. (n.d.). *How to Report a Chi-Square Test Result (APA)*. Retrieved May 26, 2025, from https://www.socscistatistics.com/tutorials/chisquare/default.aspx</li>
+                        <li>SPSS Analysis. (n.d.). *One-Way ANOVA Test in SPSS*. Retrieved May 26, 2025, from https://spssanalysis.com/one-way-anova-test-in-spss/</li>
+                        <li>SPSS Analysis. (n.d.). *Simple Linear Regression in SPSS*. Retrieved May 26, 2025, from https://spssanalysis.com/simple-linear-regression-in-spss/</li>
+                        <li>SPSS Tutorials. (n.d.). *Oneway ANOVA - SPSS (part 1)* [Video]. YouTube. Retrieved May 26, 2025, from https://www.youtube.com/watch?v=_btBuD3LIsM</li>
+                        <li>SPSS Tutorials. (n.d.). *SPSS tutorial: One way ANOVA* [Video]. YouTube. Retrieved May 26, 2025, from https://www.youtube.com/watch?v=jYn5Jv7Gh4s&pp=0gcJCdgAo7VqN5tD</li>
+                        <li>Statistics Easily. (2023, January 10). *A Step-by-Step Guide: T-test APA Report*. Retrieved from [https://statisticseasily.com/2023/01/10/t-test-apa-report/](https://statisticseasily.com/2023/01/10/t-test-apa-report/)</li>
+                        <li>Statistics Easily. (2023, December 11). *How to Report Results of ANOVA*. Retrieved from [https://www.statisticseasily.com/how-to-report-results-of-anova/](https://www.statisticseasily.com/how-to-report-results-of-anova/)</li>
+                        <li>Statistics Solutions. (n.d.). *ANOVA (Analysis of Variance)*. Retrieved May 26, 2025, from https://www.statisticssolutions.com/free-resources/directory-of-statistical-analyses/anova/</li>
+                        <li>Statistics Solutions. (n.d.). *Recognizing components of an APA-style statistical report*. Retrieved May 26, 2025, from https://www.statisticssolutions.com/recognizing-components-of-an-apa-style-statistical-report/</li>
+                        <li>Study Crumb. (2022). *APA reporting statistics and numbers: Full guide*. https://studycrumb.com/reporting-statistics-in-apa-style</li>
+                        <li>UNSW Online. (n.d.). *Types of data and the scales of measurement*. Retrieved May 26, 2025, from https://studyonline.unsw.edu.au/blog/types-of-data</li>
+                        <li>University of Connecticut Writing Center. (2014, June). *Reporting statistics*. https://writingcenter.uconn.edu/wp-content/uploads/sites/593/2014/06/Reporting_Statistics1.pdf</li>
+                        <li>University of Guelph Library. (n.d.). *Analyze Data: SPSS*. Retrieved from [https://guides.lib.uoguelph.ca/c.php?g=525348&p=5273037](https://guides.lib.uoguelph.ca/c.php?g=525348&p=5273037)</li>
+                        <li>University of Washington Department of Psychology. (n.d.). *Reporting results of common statistical tests in APA format*. Retrieved May 26, 2025, from https://psych.uw.edu/storage/writing_center/stats.pdf</li>
+                    </ul>
+                </section>
+
+                <!-- Footer -->
+                <footer class="mt-12 py-8">
+                    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <p class="text-center text-base text-slate-500">&copy; 2025 Dr. Imran Mazid.</p>
+                    </div>
+                </footer>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const openSidebarButton = document.getElementById('openSidebar');
+            const closeSidebarButton = document.getElementById('closeSidebar');
+            const sidebar = document.getElementById('sidebar');
+
+            function setActiveSection(hash) {
+                // Ensure hash is always a valid selector
+                let targetHash = hash;
+                if (!targetHash || targetHash === "#") {
+                    targetHash = '#introduction';
+                }
+                
+                // Hide all sections
+                contentSections.forEach(section => section.classList.remove('active'));
+                sidebarLinks.forEach(link => link.classList.remove('active'));
+
+                // Show the target section
+                const targetSection = document.querySelector(targetHash);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+
+                // Highlight the active link
+                const activeLink = document.querySelector(`.sidebar-link[href="${targetHash}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    window.location.hash = targetId;
+                    if (window.innerWidth < 768) { // md breakpoint in Tailwind
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                });
+            });
+
+            window.addEventListener('hashchange', () => {
+                // On hash change, re-evaluate the hash and set active section
+                setActiveSection(window.location.hash);
+            });
+
+            // Initial load
+            setActiveSection(window.location.hash);
+            
+            // Mobile sidebar toggle
+            openSidebarButton.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+            closeSidebarButton.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+
+            // Chart Initializations
+            function createChart(chartId, type, labels, datasets, options = {}) {
+                const ctx = document.getElementById(chartId);
+                if (!ctx) return null;
+                return new Chart(ctx, {
+                    type,
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        ...options
+                    }
+                });
+            }
+
+            // Chi-Square Chart
+            createChart('chiSquareChart', 'bar', ['Facebook', 'Instagram', 'TikTok'], [
+                { label: 'Observed Recall', data: [70, 80, 60], backgroundColor: 'rgba(20, 184, 166, 0.6)', borderColor: 'rgb(13, 148, 136)', borderWidth: 1 },
+                { label: 'Expected Recall', data: [65, 75, 65], backgroundColor: 'rgba(203, 213, 225, 0.6)', borderColor: 'rgb(100, 116, 139)', borderWidth: 1 }
+            ], { plugins: { title: { display: true, text: 'Observed vs. Expected Ad Recall by Platform' } } });
+
+            // T-Test Chart
+            createChart('tTestChart', 'bar', ['Ad Version A', 'Ad Version B'], [
+                { label: 'Average CTR (%)', data: [5.50, 4.80], backgroundColor: ['rgba(20, 184, 166, 0.6)', 'rgba(245, 158, 11, 0.6)'], borderColor: ['rgb(13, 148, 136)', 'rgb(217, 119, 6)'], borderWidth: 1 }
+            ], { scales: { y: { beginAtZero: true, ticks: { callback: v => v + '%' } } }, plugins: { legend: { display: false }, title: { display: true, text: 'Average Click-Through Rate (CTR) Comparison' } } });
+
+            // ANOVA Chart
+            createChart('anovaChart', 'bar', ['Infographics', 'Videos', 'Polls'], [
+                { label: 'Average Engagement Rate', data: [4.50, 6.20, 3.80], backgroundColor: ['rgba(20, 184, 166, 0.6)', 'rgba(245, 158, 11, 0.6)', 'rgba(59, 130, 246, 0.6)'], borderColor: ['rgb(13, 148, 136)', 'rgb(217, 119, 6)', 'rgb(37, 99, 235)'], borderWidth: 1 }
+            ], { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false }, title: { display: true, text: 'Average Engagement by Content Type' } } });
+
+            // Simple Linear Regression Chart
+            createChart('slrChart', 'scatter', [], [
+                { label: 'Campaign Data', data: [{x: 1000, y: 7}, {x: 2000, y: 9}, {x: 3000, y: 10}, {x: 4000, y: 14}, {x: 5000, y: 16}], backgroundColor: 'rgba(20, 184, 166, 0.6)' },
+                { label: 'Regression Line', data: [{x: 1000, y: 7.23}, {x: 5000, y: 15.23}], type: 'line', borderColor: 'rgb(217, 119, 6)', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0 }
+            ], { scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: 'Ad Impressions' } }, y: { title: { display: true, text: 'Website Conversions' } } }, plugins: { title: { display: true, text: 'Ad Impressions vs. Website Conversions' } } });
+
+            // Multiple Linear Regression Chart
+            createChart('mlrChart', 'bar', ['PR Mentions', 'Ad Recall', 'Social Engagement'], [
+                { label: 'Standardized Beta (β)', data: [0.42, 0.25, 0.05], backgroundColor: 'rgba(20, 184, 166, 0.6)', borderColor: 'rgb(13, 148, 136)', borderWidth: 1 }
+            ], { indexAxis: 'y', plugins: { legend: { display: false }, title: { display: true, text: 'Predictor Importance (Standardized Beta Coefficients)' } } });
+
+
+            // --- Quiz Data and Logic ---
+            const quizData = {
+                'chi-square': {
+                    attempts: 0,
+                    maxAttempts: 3,
+                    score: 0,
+                    completed: false,
+                    questions: [
+                        { q: "The Chi-Square test is used to determine if there's an association between two:", o: ["Continuous variables", "Categorical variables", "One continuous and one categorical variable", "Interval variables"], a: "Categorical variables", expl: "The Chi-Square Test of Independence specifically examines relationships between two nominal or categorical variables." },
+                        { q: "A key assumption for the Chi-Square test is that most expected frequencies in each cell should ideally be at least:", o: ["1", "5", "10", "20"], a: "5", expl: "For the Chi-Square distribution to be a good approximation, expected cell frequencies should ideally be 5 or greater for most cells (typically 80%)." },
+                        { q: "If a Chi-Square test yields a p-value of .002 (with α=.05), what is the conclusion?", o: ["No significant association", "Significant association exists", "The variables are causal", "The sample size is too small"], a: "Significant association exists", expl: "Since .002 is less than .05, the null hypothesis of no association is rejected, indicating a significant association." },
+                        { q: "Cramer's V helps you understand the ____ of the association between two categorical variables.", o: ["Direction", "Causation", "Strength", "Normality"], a: "Strength", expl: "Cramer's V is an effect size measure that quantifies the magnitude or strength of the association between categorical variables." },
+                        { q: "Which of the following is NOT an assumption of the Chi-Square test?", o: ["Two categorical variables", "Independence of observations", "Normally distributed data", "Expected frequencies are not too small"], a: "Normally distributed data", expl: "The Chi-Square test is a non-parametric test, meaning it does not assume that the data is normally distributed." },
+                        { q: "In an AdPR study, comparing 'Preferred Social Media Platform' (Facebook, Instagram) and 'Ad Recall' (Yes/No) requires which test?", o: ["Independent Samples T-Test", "One-Way ANOVA", "Chi-Square Test", "Simple Linear Regression"], a: "Chi-Square Test", expl: "Both preferred social media platform and ad recall are categorical variables, making Chi-Square the appropriate test for association." },
+                        { q: "What does a significant Chi-Square result indicate for an AdPR professional?", o: ["One variable causes the other", "There is a statistically significant relationship between the variables", "The observed frequencies are exactly what was expected", "The test results are unreliable"], a: "There is a statistically significant relationship between the variables", expl: "A significant Chi-Square result indicates that the observed association between two categorical variables is unlikely due to due to chance." },
+                        { q: "The degrees of freedom (df) for a Chi-Square test with 3 rows and 2 columns would be:", o: ["1", "2", "3", "4"], a: "2", expl: "Degrees of freedom are calculated as (number of rows - 1) * (number of columns - 1). So, (3-1) * (2-1) = 2 * 1 = 2." },
+                        { q: "If Cramer's V is reported as .05, what kind of effect size does this typically represent?", o: ["No effect", "Small effect", "Medium effect", "Large effect"], a: "Small effect", expl: "Cramer's V values around .10 are generally considered a small effect size for categorical associations." }
+                    ]
+                },
+                't-test': {
+                    attempts: 0,
+                    maxAttempts: 3,
+                    score: 0,
+                    completed: false,
+                    questions: [
+                        { q: "An Independent Samples T-Test is used to compare the means of a continuous dependent variable between:", o: ["One group", "Two independent groups", "Three or more independent groups", "Two related groups"], a: "Two independent groups", expl: "The Independent Samples T-Test is specifically designed for comparing means of a continuous variable between two distinct and unrelated groups." },
+                        { q: "Levene's Test for Equality of Variances assesses which assumption for the Independent Samples T-Test?", o: ["Normality", "Independence of observations", "Homogeneity of variances", "Linearity"], a: "Homogeneity of variances", expl: "Levene's Test checks whether the variances (spread) of the dependent variable are roughly equal across the two groups." },
+                        { q: "If the p-value for Levene's Test is .02 (with α=.05), you should interpret the t-test from the row:", o: ["Equal variances assumed", "Equal variances not assumed", "Both rows", "Neither row"], a: "Equal variances not assumed", expl: "A p-value less than or equal to alpha for Levene's Test indicates unequal variances, so the 'Equal variances not assumed' row of the t-test output should be used." },
+                        { q: "A Cohen's d of 0.80 for a significant t-test is generally considered a:", o: ["Small effect", "Medium effect", "Large effect", "No effect"], a: "Large effect", expl: "Cohen's d values of 0.80 or higher indicate a large practical difference between group means, suggesting substantial impact." },
+                        { q: "An AdPR researcher wants to compare the average brand sentiment (continuous) between consumers who saw Ad A and those who saw Ad B. Which test is appropriate?", o: ["Chi-Square Test", "Independent Samples T-Test", "One-Way ANOVA", "Simple Linear Regression"], a: "Independent Samples T-Test", expl: "This scenario involves comparing a continuous variable (brand sentiment) between two independent groups (consumers who saw Ad A vs. Ad B)." },
+                        { q: "Which variable must be continuous for an Independent Samples T-Test?", o: ["Independent variable", "Grouping variable", "Dependent variable", "All variables"], a: "Dependent variable", expl: "The variable whose means are being compared (the dependent variable) must be continuous (interval or ratio level)." },
+                        { q: "If an Independent Samples T-Test results in a p-value of .15 (with α=.05), what should you conclude?", o: ["A significant difference exists", "No significant difference exists", "Variances are unequal", "The test is invalid"], a: "No significant difference exists", expl: "Since .15 is greater than .05, you fail to reject the null hypothesis, meaning there is no statistically significant difference between the group means." },
+                        { q: "What is the primary benefit of using an Independent Samples T-Test in A/B testing?", o: ["It provides visual comparisons", "It confirms statistical significance of differences", "It calculates effect size automatically", "It works with all data types"], a: "It confirms statistical significance of differences", expl: "The t-test provides an inferential judgment on whether the observed difference between two versions (A/B) is likely real or due to random variation, guiding data-driven decisions." },
+                        { q: "The 'Mean Difference' in the Independent Samples Test output represents:", o: ["The average standard deviation of the groups", "The difference between the two group means being compared", "The average p-value", "The critical t-value for significance"], a: "The difference between the two group means being compared", expl: "The Mean Difference directly states the numerical difference between the average values of the dependent variable for the two groups." }
+                    ]
+                },
+                'one-way-anova': {
+                    attempts: 0,
+                    maxAttempts: 3,
+                    score: 0,
+                    completed: false,
+                    questions: [
+                        { q: "One-Way ANOVA is used to compare the means of a continuous dependent variable across:", o: ["Two independent groups", "Three or more independent groups", "Two related groups", "Any number of groups, related or unrelated"], a: "Three or more independent groups", expl: "One-Way ANOVA is specifically designed for comparing the means of a continuous variable across three or more distinct (independent) groups." },
+                        { q: "If the overall ANOVA F-test is statistically significant (p ≤ .05), what is the next step typically required?", o: ["Conclude all groups are different", "Stop analysis, the answer is found", "Perform post-hoc tests", "Increase sample size"], a: "Perform post-hoc tests", expl: "A significant F-test only tells you that *at least one* group mean is different, not which specific pairs differ. Post-hoc tests are then used to identify these specific differences." },
+                        { q: "Why is ANOVA preferred over multiple t-tests when comparing more than two groups?", o: ["ANOVA is faster", "ANOVA is easier to interpret", "ANOVA controls for Type I error rate inflation", "ANOVA works with categorical dependent variables"], a: "ANOVA controls for Type I error rate inflation", expl: "Performing multiple t-tests increases the probability of falsely rejecting a true null hypothesis (Type I error). ANOVA provides an omnibus test that maintains the overall alpha level." },
+                        { q: "Eta-squared (η²) is an effect size measure for ANOVA. An η² of .10 is generally considered a:", o: ["Small effect", "Medium effect", "Large effect", "No effect"], a: "Medium effect", expl: "According to general guidelines, an eta-squared value of .10 falls within the range considered a medium effect size." },
+                        { q: "An AdPR team compares average engagement rate across three social media content types (Infographics, Videos, Polls). Which test is appropriate?", o: ["Independent Samples T-Test", "Chi-Square Test", "One-Way ANOVA", "Simple Linear Regression"], a: "One-Way ANOVA", expl: "This scenario involves comparing a continuous variable (engagement rate) across three or more independent groups (content types)." },
+                        { q: "What does a significant F-ratio in the ANOVA output indicate?", o: ["All group means are identical", "The independent variable has no effect", "There is a statistically significant difference between at least two group means", "The sample size is too small"], a: "There is a statistically significant difference between at least two group means", expl: "A significant F-ratio means that the null hypothesis of no difference among all group means is rejected, implying that at least one group mean is significantly different from the others." },
+                        { q: "Which post-hoc test is commonly used when the assumption of equal variances is violated in ANOVA?", o: ["Tukey HSD", "LSD", "Bonferroni", "Games-Howell"], a: "Games-Howell", expl: "Games-Howell is a robust post-hoc test recommended when Levene's Test indicates unequal variances across groups." },
+                        { q: "The 'Between Groups' sum of squares in the ANOVA table represents:", o: ["Random error", "Variability within each group", "Variability explained by the independent variable", "Total variability in the dependent variable"], a: "Variability explained by the independent variable", expl: "The 'Between Groups' sum of squares quantifies the variance in the dependent variable that is attributable to the differences between the group means (i.e., the effect of the independent variable)." },
+                        { q: "If the p-value for Levene's Test in ANOVA is .03 (with α=.05), what is the implication?", o: ["Variances are equal; use Tukey HSD", "Variances are unequal; use Games-Howell", "Normality assumption is violated", "The overall ANOVA is significant"], a: "Variances are unequal; use Games-Howell", expl: "A p-value ≤ .05 for Levene's Test indicates unequal variances, suggesting the need for post-hoc tests that don't assume equality, like Games-Howell." }
+                    ]
+                },
+                'simple-linear-regression': {
+                    attempts: 0,
+                    maxAttempts: 3,
+                    score: 0,
+                    completed: false,
+                    questions: [
+                        { q: "Simple Linear Regression is used to predict a continuous dependent variable from:", o: ["One categorical independent variable", "One continuous independent variable", "Two or more continuous independent variables", "Any number of independent variables"], a: "One continuous independent variable", expl: "Simple Linear Regression analyzes the linear relationship between exactly two continuous variables, with one predicting the other." },
+                        { q: "The 'b₁' coefficient (slope) in the regression equation *Y* = *b₀* + *b₁X* indicates:", o: ["The predicted value of Y when X is zero", "The change in Y for every one-unit increase in X", "The strength of the correlation between X and Y", "The overall model fit"], a: "The change in Y for every one-unit increase in X", expl: "The slope (b₁) quantifies the rate at which the dependent variable (Y) is expected to change for each unit increase in the independent variable (X)." },
+                        { q: "R-squared (R²) in simple linear regression tells you:", o: ["The significance of the slope", "The direction of the relationship", "The proportion of variance in the dependent variable explained by the independent variable", "Whether the data is normally distributed"], a: "The proportion of variance in the dependent variable explained by the independent variable", expl: "R-squared, or the coefficient of determination, indicates the percentage of variation in the dependent variable that is accounted for by the independent variable(s)." },
+                        { q: "An AdPR analyst wants to predict website sign-ups (continuous) based on the amount of money spent on digital advertising (continuous). Which test is appropriate?", o: ["Chi-Square Test", "Independent Samples T-Test", "One-Way ANOVA", "Simple Linear Regression"], a: "Simple Linear Regression", expl: "This scenario involves predicting one continuous variable (website sign-ups) from another continuous variable (ad spend), which is the purpose of simple linear regression." },
+                        { q: "Which of the following is an assumption of Simple Linear Regression?", o: ["Categorical dependent variable", "Non-linear relationship", "Homoscedasticity", "Presence of multicollinearity"], a: "Homoscedasticity", expl: "Homoscedasticity requires that the variance of the residuals (errors) is constant across all levels of the independent variable, ensuring consistent predictive accuracy." },
+                        { q: "If the p-value for the overall regression model's F-test is .000 (with α=.05), what does this mean?", o: ["No significant linear relationship", "A significant linear relationship exists", "The model is a poor fit", "There are no outliers"], a: "A significant linear relationship exists", expl: "A p-value less than .05 for the F-test indicates that the overall regression model is statistically significant, meaning the independent variable significantly predicts the dependent variable." },
+                        { q: "The intercept (*b₀*) in a simple linear regression equation represents:", o: ["The slope of the line", "The value of X when Y is zero", "The predicted value of Y when X is zero", "The error term"], a: "The predicted value of Y when X is zero", expl: "The intercept (b₀) is the point where the regression line crosses the Y-axis, representing the predicted value of the dependent variable when the independent variable is zero." },
+                        { q: "Extrapolating predictions beyond the range of observed data in regression can lead to:", o: ["More accurate forecasts", "Meaningless or inaccurate results", "Stronger correlations", "Better model fit"], a: "Meaningless or inaccurate results", expl: "Regression models are based on observed data; applying them to values outside this range assumes the linear relationship continues, which may not be true, leading to unreliable predictions." },
+                        { q: "What does an R-squared of 0.70 indicate in simple linear regression?", o: ["70% of the data is accurate", "The model explains 70% of the variance in the dependent variable", "The independent variable is 70% correlated with the dependent variable", "There is a 70% chance of predicting correctly"], a: "The model explains 70% of the variance in the dependent variable", expl: "An R-squared of 0.70 means that 70% of the variability in the dependent variable can be accounted for by the variations in the independent variable, indicating a strong model fit." }
+                    ]
+                },
+                'multiple-linear-regression': {
+                    attempts: 0,
+                    maxAttempts: 3,
+                    score: 0,
+                    completed: false,
+                    questions: [
+                        { q: "Multiple Linear Regression is used to predict a continuous dependent variable from:", o: ["One categorical independent variable", "One continuous independent variable", "Two or more independent variables", "Two related variables"], a: "Two or more independent variables", expl: "Multiple Linear Regression extends simple linear regression by allowing the use of two or more independent variables to predict a single continuous dependent variable." },
+                        { q: "Multicollinearity in multiple linear regression refers to high correlation among:", o: ["Dependent variables", "Independent variables", "Residuals", "Observations"], a: "Independent variables", expl: "Multicollinearity occurs when two or more independent variables in a regression model are highly correlated with each other, which can complicate the interpretation of individual predictor effects." },
+                        { q: "Standardized Beta (β) coefficients in multiple linear regression are primarily useful for:", o: ["Calculating the intercept", "Determining the p-value for the model", "Comparing the relative importance of different predictors", "Checking for linearity"], a: "Comparing the relative importance of different predictors", expl: "Standardized beta coefficients allow researchers to compare the unique contributions of different predictors on a common scale, indicating which has the strongest effect." },
+                        { q: "An AdPR manager wants to predict overall brand sentiment (continuous) using positive PR mentions (continuous), social media engagement rate (continuous), and ad recall score (continuous). Which test is appropriate?", o: ["Chi-Square Test", "Independent Samples T-Test", "One-Way ANOVA", "Multiple Linear Regression"], a: "Multiple Linear Regression", expl: "This scenario involves predicting a single continuous dependent variable (brand sentiment) from multiple continuous independent variables, which is the purpose of multiple linear regression." },
+                        { q: "What does 'Adjusted R-Square' primarily account for in multiple linear regression?", o: ["The overall significance of the model", "The number of predictors in the model", "The strength of individual predictors", "The presence of outliers"], a: "The number of predictors in the model", expl: "Adjusted R-squared is a modified version of R-squared that accounts for the number of predictors in the model, providing a more accurate estimate of the population R-squared and helping to avoid overfitting." },
+                        { q: "A VIF (Variance Inflation Factor) value of 15 for an independent variable typically suggests:", o: ["No multicollinearity", "Moderate multicollinearity", "Problematic multicollinearity", "A very strong predictor"], a: "Problematic multicollinearity", expl: "VIF values above 10 (or sometimes even 5) are generally considered to indicate problematic levels of multicollinearity, which can make individual predictor coefficients unreliable." },
+                        { q: "The unstandardized coefficient (B) for a predictor in multiple regression indicates:", o: ["Its relative importance compared to other predictors", "The expected change in the dependent variable for a one-unit change in that predictor, holding others constant", "Whether the predictor is significant", "The correlation with the dependent variable"], a: "The expected change in the dependent variable for a one-unit change in that predictor, holding others constant", expl: "The unstandardized coefficient (B) shows the direct change in the dependent variable for each one-unit increase in that specific independent variable, assuming all other predictors remain unchanged." },
+                        { q: "If the overall ANOVA table in multiple regression shows a significant F-statistic, it means:", o: ["All individual predictors are significant", "The model as a whole significantly predicts the dependent variable", "There is no multicollinearity", "The sample size is too large"], a: "The model as a whole significantly predicts the dependent variable", expl: "A significant F-statistic in the ANOVA table indicates that the entire set of independent variables, when considered together, significantly predicts the dependent variable, implying that the model is a good fit for the data." },
+                        { q: "Which assumption is checked using Tolerance or VIF values?", o: ["Normality of residuals", "Homoscedasticity", "Independence of observations", "No multicollinearity"], a: "No multicollinearity", expl: "Tolerance and VIF (Variance Inflation Factor) are key statistics used to diagnose multicollinearity, which is when independent variables in a multiple regression model are highly correlated with each other." }
+                    ]
+                }
+            };
+
+            // Initialize quiz state for each module
+            const quizStates = {
+                'chi-square': { attempts: 0, score: 0, completed: false },
+                't-test': { attempts: 0, score: 0, completed: false },
+                'one-way-anova': { attempts: 0, score: 0, completed: false },
+                'simple-linear-regression': { attempts: 0, score: 0, completed: false },
+                'multiple-linear-regression': { attempts: 0, score: 0, completed: false }
+            };
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                }
+                return array;
+            }
+
+            function renderQuiz(moduleKey) {
+                const quizSection = document.getElementById(`${moduleKey}-quiz`);
+                const state = quizStates[moduleKey];
+                const questionsPool = quizData[moduleKey].questions;
+
+                if (!quizSection) return; // Exit if quiz section doesn't exist
+
+                // Clear previous content
+                quizSection.innerHTML = '';
+
+                // Only render if not completed and attempts remaining
+                if (state.completed || state.attempts >= state.maxAttempts) {
+                    let statusMessage = state.completed ? `Quiz Completed! Your final score was ${state.score}/3.` : `Maximum attempts (3) reached. Review the module content.`;
+                    let statusClass = state.score === 3 ? 'feedback-correct' : 'feedback-incorrect';
+                    quizSection.innerHTML = `
+                        <h3 class="text-2xl font-bold text-emerald-700">Quiz: Test Your Knowledge!</h3>
+                        <div class="quiz-overall-status ${statusClass} p-3 rounded-md">${statusMessage}</div>
+                    `;
+                    return; // Do not render questions or buttons if completed/max attempts
+                }
+
+                let quizHTML = `
+                    <h3 class="text-2xl font-bold text-emerald-700">Quiz: Test Your Knowledge!</h3>
+                    <p class="quiz-attempts-info">Attempt ${state.attempts + 1} of 3</p>
+                    <div id="quiz-questions-${moduleKey}"></div>
+                    <div class="quiz-buttons mt-4">
+                        <button id="submit-quiz-${moduleKey}">Submit Quiz</button>
+                        <button id="retake-quiz-${moduleKey}" style="display:none;">Retake Quiz</button>
+                    </div>
+                    <div id="quiz-feedback-${moduleKey}" class="quiz-feedback hidden"></div>
+                    <div id="quiz-overall-status-${moduleKey}" class="quiz-status hidden"></div>
+                `;
+                quizSection.innerHTML = quizHTML;
+
+                const questionsContainer = document.getElementById(`quiz-questions-${moduleKey}`);
+                const submitBtn = document.getElementById(`submit-quiz-${moduleKey}`);
+                const retakeBtn = document.getElementById(`retake-quiz-${moduleKey}`);
+                const feedbackDiv = document.getElementById(`quiz-feedback-${moduleKey}`);
+                const overallStatusDiv = document.getElementById(`quiz-overall-status-${moduleKey}`);
+
+                // Select 3 unique questions for this attempt
+                const currentQuestions = shuffleArray([...questionsPool]).slice(0, 3);
+                
+                questionsContainer.innerHTML = currentQuestions.map((qItem, qIndex) => `
+                    <div class="quiz-question">
+                        <p>${qIndex + 1}. ${qItem.q}</p>
+                        ${shuffleArray([...qItem.o]).map(option => `
+                            <div class="quiz-option">
+                                <label>
+                                    <input type="radio" name="q${moduleKey}-${qIndex}" value="${option}"> ${option}
+                                </label>
+                            </div>
+                        `).join('')}
+                        <div id="explanation-${moduleKey}-${qIndex}" class="quiz-explanation hidden"></div>
+                    </div>
+                `).join('');
+
+                submitBtn.onclick = () => {
+                    state.attempts++;
+                    let currentScore = 0;
+                    let allQuestionsAnswered = true;
+                    feedbackDiv.innerHTML = '';
+                    feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
+                    overallStatusDiv.classList.remove('feedback-correct', 'feedback-incorrect');
+
+                    currentQuestions.forEach((qItem, qIndex) => {
+                        const selectedOption = questionsContainer.querySelector(`input[name="q${moduleKey}-${qIndex}"]:checked`);
+                        const explanationDiv = document.getElementById(`explanation-${moduleKey}-${qIndex}`);
+                        explanationDiv.classList.remove('hidden');
+
+                        if (selectedOption) {
+                            if (selectedOption.value === qItem.a) {
+                                currentScore++;
+                                explanationDiv.innerHTML = `<strong>Correct!</strong> ${qItem.expl}`;
+                                explanationDiv.classList.add('feedback-correct');
+                                explanationDiv.classList.remove('feedback-incorrect');
+                            } else {
+                                explanationDiv.innerHTML = `<strong>Incorrect.</strong> The correct answer was "${qItem.a}". ${qItem.expl}`;
+                                explanationDiv.classList.add('feedback-incorrect');
+                                explanationDiv.classList.remove('feedback-correct');
+                            }
+                        } else {
+                            allQuestionsAnswered = false;
+                            explanationDiv.innerHTML = `<strong>Not Answered.</strong> The correct answer was "${qItem.a}". ${qItem.expl}`;
+                            explanationDiv.classList.add('feedback-incorrect');
+                            explanationDiv.classList.remove('feedback-correct');
+                        }
+                    });
+
+                    state.score = currentScore;
+                    feedbackDiv.innerHTML = `You scored ${state.score} out of 3.`;
+                    feedbackDiv.classList.add('p-3', 'rounded-md', 'border');
+                    feedbackDiv.classList.remove('hidden');
+
+                    if (state.score === 3) {
+                        state.completed = true;
+                        overallStatusDiv.textContent = `Quiz Completed! You passed this module.`;
+                        overallStatusDiv.classList.add('feedback-correct');
+                        overallStatusDiv.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        retakeBtn.style.display = 'none';
+                    } else if (state.attempts < state.maxAttempts) {
+                        overallStatusDiv.textContent = `Score: ${state.score}/3. Please try again.`;
+                        overallStatusDiv.classList.add('feedback-incorrect');
+                        overallStatusDiv.classList.remove('hidden');
+                        retakeBtn.style.display = 'inline-block';
+                    } else {
+                        state.completed = true;
+                        overallStatusDiv.textContent = `Maximum attempts (3) reached. Score: ${state.score}/3. Review the module content.`;
+                        overallStatusDiv.classList.add('feedback-incorrect');
+                        overallStatusDiv.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        retakeBtn.style.display = 'none';
+                    }
+                    submitBtn.style.display = 'none';
+                };
+
+                retakeBtn.onclick = () => {
+                    if (state.attempts < state.maxAttempts && !state.completed) {
+                        renderQuiz(moduleKey); // Render a new set of questions
+                        submitBtn.style.display = 'inline-block';
+                        retakeBtn.style.display = 'none';
+                        feedbackDiv.classList.add('hidden');
+                        overallStatusDiv.classList.add('hidden');
+                        overallStatusDiv.classList.remove('feedback-correct', 'feedback-incorrect');
+                    }
+                };
+
+                // Disable submit/retake if already completed or max attempts reached on load
+                if (state.completed || state.attempts >= state.maxAttempts) {
+                    submitBtn.disabled = true;
+                    retakeBtn.style.display = 'none';
+                    overallStatusDiv.textContent = state.completed ? `Quiz Completed! Your final score was ${state.score}/3.` : `Maximum attempts (3) reached. Review the module content.`;
+                    overallStatusDiv.classList.add(state.score === 3 ? 'feedback-correct' : 'feedback-incorrect');
+                    overallStatusDiv.classList.remove('hidden');
+                    // Show explanations if completed or max attempts
+                    questionsContainer.querySelectorAll('.quiz-explanation').forEach(el => el.classList.remove('hidden'));
+                }
+            }
+
+            // Render quizzes for each module
+            renderQuiz('chi-square');
+            renderQuiz('t-test');
+            renderQuiz('one-way-anova');
+            renderQuiz('simple-linear-regression');
+            renderQuiz('multiple-linear-regression');
+
+
+            // --- AI Simulation Logic ---
+            const generateBtn = document.getElementById('generate-scenario-btn');
+            const downloadBtn = document.getElementById('download-dataset-btn');
+            const simulationOutput = document.getElementById('simulation-output');
+            const simulationContent = document.getElementById('simulation-content');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const errorMessage = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            let generatedCsvData = ''; // To store the generated CSV data
+
+            generateBtn.addEventListener('click', async () => {
+                const testType = document.getElementById('test-select').value;
+                const domain = document.getElementById('domain-select').value;
+
+                if (!testType || !domain) {
+                    alert('Please select both a statistical test and a domain.');
+                    return;
+                }
+
+                // --- UI updates for loading state ---
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Generating...';
+                simulationOutput.classList.remove('hidden');
+                simulationContent.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                downloadBtn.disabled = true;
+
+                try {
+                    // This is the call to our future serverless function.
+                    const response = await fetch('/api/generate-scenario', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ testType, domain })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // --- Populate the UI with the AI-generated content ---
+                    document.getElementById('scenario-text').innerHTML = data.scenario || 'No scenario generated.';
+                    document.getElementById('data-structure-text').innerHTML = data.dataStructure || 'No data structure generated.';
+                    document.getElementById('hypotheses-text').innerHTML = data.hypotheses || 'No hypotheses generated.';
+                    document.getElementById('spss-guide-text').textContent = data.spssGuide || 'No SPSS guide generated.';
+                    
+                    generatedCsvData = data.csvData || ''; // Store CSV data
+                    
+                    if (generatedCsvData) {
+                        downloadBtn.disabled = false; // Enable download button if data exists
+                    }
+
+                    simulationContent.classList.remove('hidden');
+
+                } catch (error) {
+                    console.error("Error generating scenario:", error);
+                    errorText.textContent = `Failed to generate the scenario. ${error.message}. Please try again later. This feature requires a backend function that might not be set up yet.`;
+                    errorMessage.classList.remove('hidden');
+                } finally {
+                    // --- Reset UI from loading state ---
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'Generate Scenario';
+                    loadingSpinner.classList.add('hidden');
+                }
+            });
+
+            downloadBtn.addEventListener('click', () => {
+                if (!generatedCsvData) {
+                    alert('No dataset available to download.');
+                    return;
+                }
+                const blob = new Blob([generatedCsvData], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                const testType = document.getElementById('test-select').value;
+                const domain = document.getElementById('domain-select').value;
+                link.setAttribute('download', `synthetic_data_${domain}_${testType}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+    </script>
+</body>
+</html>
