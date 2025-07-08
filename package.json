@@ -1,14 +1,23 @@
 {
   "name": "gemini-adpr-stats",
   "version": "1.0.0",
-  "description": "Serverless function to connect to Gemini API for AdPR stats module.",
+  "description": "Educational website for AdPR statistical analysis with AI simulation.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "netlify dev",
+    "build": "echo 'No build script needed for static HTML + Netlify Functions'"
   },
-  "author": "Dr. Imran Mazid",
-  "license": "ISC",
+  "keywords": [
+    "Gemini API",
+    "Netlify Functions",
+    "Education",
+    "Statistics",
+    "AdPR"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
-    "@google/generative-ai": "^0.14.1"
+    "@google/generative-ai": "^0.14.0",
+    "dotenv": "^16.4.5"
   }
 }

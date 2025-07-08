@@ -138,78 +138,6 @@
             background-color: #f1f5f9; /* slate-100 */
             font-weight: 600;
         }
-        /* Quiz specific styles */
-        .quiz-section {
-            background-color: #ecfdf5; /* emerald-50 */
-            border: 1px solid #a7f3d0; /* emerald-200 */
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-        .quiz-question {
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
-        .quiz-option label {
-            display: block;
-            background-color: #f0fdf4; /* emerald-50 */
-            border: 1px solid #d1fae5; /* emerald-100 */
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .quiz-option label:hover {
-            background-color: #e0fdf5; /* emerald-100 */
-        }
-        .quiz-option input[type="radio"] {
-            margin-right: 0.75rem;
-        }
-        .quiz-feedback {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 0.375rem;
-        }
-        .feedback-correct {
-            background-color: #d1fae5; /* green-100 */
-            color: #065f46; /* green-800 */
-        }
-        .feedback-incorrect {
-            background-color: #fee2e2; /* red-100 */
-            color: #991b1b; /* red-800 */
-        }
-        .quiz-explanation {
-            font-size: 0.9em;
-            margin-top: 0.5rem;
-            padding-left: 1rem;
-            border-left: 3px solid #6ee7b7; /* emerald-400 */
-        }
-        .quiz-buttons button {
-            background-color: #10b981; /* emerald-500 */
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.375rem;
-            transition: background-color 0.2s ease;
-            margin-right: 0.5rem;
-        }
-        .quiz-buttons button:hover {
-            background-color: #059669; /* emerald-600 */
-        }
-        .quiz-buttons button:disabled {
-            background-color: #9ca3af; /* gray-400 */
-            cursor: not-allowed;
-        }
-        .quiz-status {
-            margin-top: 1rem;
-            font-weight: 500;
-            color: #065f46; /* emerald-800 */
-        }
-        .quiz-attempts-info {
-            font-size: 0.85em;
-            color: #4b5563; /* gray-600 */
-            margin-top: 0.5rem;
-        }
         /* AI Simulation styles */
         .simulation-controls {
             background-color: #f0f9ff; /* sky-50 */
@@ -801,7 +729,7 @@
                     </ul>
 
                     <h4>Reporting in APA 7th Edition</h4>
-                    <p>Report overall model significance (F-statistic, degrees of freedom, p-value, R-squared, Adjusted R-squared). Then, for each predictor, report its unstandardized b, standardized β, t-statistic, and p-value. Include a note on multicollinearity.</p>
+                    <p>Report the overall model significance (F-statistic, degrees of freedom, p-value, R-squared, Adjusted R-squared). Then, for each predictor, report its unstandardized b, standardized β, t-statistic, and p-value. Include a note on multicollinearity.</p>
                     <div class="apa-example">A multiple regression analysis was conducted to predict brand sentiment score from positive PR mentions, social media engagement rate, and ad recall score. The overall model was significant, *F*(3, 296) = 25.87, *p* < .001, *R²* = .208, Adj. *R²* = .200. Positive PR mentions (*b* = 0.15, *β* = .42, *t* = 6.89, *p* < .001) and ad recall score (*b* = 0.08, *β* = .25, *t* = 4.12, *p* < .001) were significant positive predictors of brand sentiment. Social media engagement rate was not a significant predictor (*b* = 0.02, *β* = .05, *t* = 0.95, *p* = .343). Collinearity diagnostics indicated that multicollinearity was not a concern (all VIF < 2.0). These findings suggest that increasing positive PR mentions and improving ad recall are key strategies for enhancing brand sentiment, with PR mentions having the strongest unique impact."</div>
                      
                 </section>
@@ -864,14 +792,6 @@
 
                             <h3 class="text-2xl font-bold mt-6">SPSS Instructional Guide</h3>
                             <pre id="spss-guide-text" class="bg-slate-50 p-4 rounded-md text-sm overflow-x-auto mb-4"></pre>
-
-                            <h3 class="text-2xl font-bold mt-6">Synthetic Dataset (30 Observations)</h3>
-                            <p class="text-slate-600 mb-2">Download a sample dataset tailored to this scenario. This dataset is for instructional use with SPSS or other statistical tools.</p>
-                            <button id="download-dataset-btn" class="download-button" disabled>
-                                Download Dataset (.csv)
-                                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l3-3m-3 3l-3-3m0 6h9a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z"></path></svg>
-                            </button>
-                            <p class="text-xs text-slate-500 mt-2">Note: SPSS .sav format is proprietary and cannot be generated directly in a web browser. Use the .csv and import it into SPSS.</p>
                         </div>
                     </div>
                 </section>
@@ -939,7 +859,6 @@
                         <li>Study Crumb. (2022). *APA reporting statistics and numbers: Full guide*. https://studycrumb.com/reporting-statistics-in-apa-style</li>
                         <li>UNSW Online. (n.d.). *Types of data and the scales of measurement*. Retrieved May 26, 2025, from https://studyonline.unsw.edu.au/blog/types-of-data</li>
                         <li>University of Connecticut Writing Center. (2014, June). *Reporting statistics*. https://writingcenter.uconn.edu/wp-content/uploads/sites/593/2014/06/Reporting_Statistics1.pdf</li>
-                        <li>University of Guelph Library. (n.d.). *Analyze Data: SPSS*. Retrieved from [https://guides.lib.uoguelph.ca/c.php?g=525348&p=5273037](https://guides.lib.uoguelph.ca/c.php?g=525348&p=5273037)</li>
                         <li>University of Washington Department of Psychology. (n.d.). *Reporting results of common statistical tests in APA format*. Retrieved May 26, 2025, from https://psych.uw.edu/storage/writing_center/stats.pdf</li>
                     </ul>
                 </section>
@@ -1057,271 +976,14 @@
             ], { indexAxis: 'y', plugins: { legend: { display: false }, title: { display: true, text: 'Predictor Importance (Standardized Beta Coefficients)' } } });
 
 
-            // --- Quiz Data and Logic ---
-            const quizData = {
-                'chi-square': {
-                    attempts: 0,
-                    maxAttempts: 3,
-                    score: 0,
-                    completed: false,
-                    questions: [
-                        { q: "The Chi-Square test is used to determine if there's an association between two:", o: ["Continuous variables", "Categorical variables", "One continuous and one categorical variable", "Interval variables"], a: "Categorical variables", expl: "The Chi-Square Test of Independence specifically examines relationships between two nominal or categorical variables." },
-                        { q: "A key assumption for the Chi-Square test is that most expected frequencies in each cell should ideally be at least:", o: ["1", "5", "10", "20"], a: "5", expl: "For the Chi-Square distribution to be a good approximation, expected cell frequencies should ideally be 5 or greater for most cells (typically 80%)." },
-                        { q: "If a Chi-Square test yields a p-value of .002 (with α=.05), what is the conclusion?", o: ["No significant association", "Significant association exists", "The variables are causal", "The sample size is too small"], a: "Significant association exists", expl: "Since .002 is less than .05, the null hypothesis of no association is rejected, indicating a significant association." },
-                        { q: "Cramer's V helps you understand the ____ of the association between two categorical variables.", o: ["Direction", "Causation", "Strength", "Normality"], a: "Strength", expl: "Cramer's V is an effect size measure that quantifies the magnitude or strength of the association between categorical variables." },
-                        { q: "Which of the following is NOT an assumption of the Chi-Square test?", o: ["Two categorical variables", "Independence of observations", "Normally distributed data", "Expected frequencies are not too small"], a: "Normally distributed data", expl: "The Chi-Square test is a non-parametric test, meaning it does not assume that the data is normally distributed." },
-                        { q: "In an AdPR study, comparing 'Preferred Social Media Platform' (Facebook, Instagram) and 'Ad Recall' (Yes/No) requires which test?", o: ["Independent Samples T-Test", "One-Way ANOVA", "Chi-Square Test", "Simple Linear Regression"], a: "Chi-Square Test", expl: "Both preferred social media platform and ad recall are categorical variables, making Chi-Square the appropriate test for association." },
-                        { q: "What does a significant Chi-Square result indicate for an AdPR professional?", o: ["One variable causes the other", "There is a statistically significant relationship between the variables", "The observed frequencies are exactly what was expected", "The test results are unreliable"], a: "There is a statistically significant relationship between the variables", expl: "A significant Chi-Square result indicates that the observed association between two categorical variables is unlikely due to due to chance." },
-                        { q: "The degrees of freedom (df) for a Chi-Square test with 3 rows and 2 columns would be:", o: ["1", "2", "3", "4"], a: "2", expl: "Degrees of freedom are calculated as (number of rows - 1) * (number of columns - 1). So, (3-1) * (2-1) = 2 * 1 = 2." },
-                        { q: "If Cramer's V is reported as .05, what kind of effect size does this typically represent?", o: ["No effect", "Small effect", "Medium effect", "Large effect"], a: "Small effect", expl: "Cramer's V values around .10 are generally considered a small effect size for categorical associations." }
-                    ]
-                },
-                't-test': {
-                    attempts: 0,
-                    maxAttempts: 3,
-                    score: 0,
-                    completed: false,
-                    questions: [
-                        { q: "An Independent Samples T-Test is used to compare the means of a continuous dependent variable between:", o: ["One group", "Two independent groups", "Three or more independent groups", "Two related groups"], a: "Two independent groups", expl: "The Independent Samples T-Test is specifically designed for comparing means of a continuous variable between two distinct and unrelated groups." },
-                        { q: "Levene's Test for Equality of Variances assesses which assumption for the Independent Samples T-Test?", o: ["Normality", "Independence of observations", "Homogeneity of variances", "Linearity"], a: "Homogeneity of variances", expl: "Levene's Test checks whether the variances (spread) of the dependent variable are roughly equal across the two groups." },
-                        { q: "If the p-value for Levene's Test is .02 (with α=.05), you should interpret the t-test from the row:", o: ["Equal variances assumed", "Equal variances not assumed", "Both rows", "Neither row"], a: "Equal variances not assumed", expl: "A p-value less than or equal to alpha for Levene's Test indicates unequal variances, so the 'Equal variances not assumed' row of the t-test output should be used." },
-                        { q: "A Cohen's d of 0.80 for a significant t-test is generally considered a:", o: ["Small effect", "Medium effect", "Large effect", "No effect"], a: "Large effect", expl: "Cohen's d values of 0.80 or higher indicate a large practical difference between group means, suggesting substantial impact." },
-                        { q: "An AdPR researcher wants to compare the average brand sentiment (continuous) between consumers who saw Ad A and those who saw Ad B. Which test is appropriate?", o: ["Chi-Square Test", "Independent Samples T-Test", "One-Way ANOVA", "Simple Linear Regression"], a: "Independent Samples T-Test", expl: "This scenario involves comparing a continuous variable (brand sentiment) between two independent groups (consumers who saw Ad A vs. Ad B)." },
-                        { q: "Which variable must be continuous for an Independent Samples T-Test?", o: ["Independent variable", "Grouping variable", "Dependent variable", "All variables"], a: "Dependent variable", expl: "The variable whose means are being compared (the dependent variable) must be continuous (interval or ratio level)." },
-                        { q: "If an Independent Samples T-Test results in a p-value of .15 (with α=.05), what should you conclude?", o: ["A significant difference exists", "No significant difference exists", "Variances are unequal", "The test is invalid"], a: "No significant difference exists", expl: "Since .15 is greater than .05, you fail to reject the null hypothesis, meaning there is no statistically significant difference between the group means." },
-                        { q: "What is the primary benefit of using an Independent Samples T-Test in A/B testing?", o: ["It provides visual comparisons", "It confirms statistical significance of differences", "It calculates effect size automatically", "It works with all data types"], a: "It confirms statistical significance of differences", expl: "The t-test provides an inferential judgment on whether the observed difference between two versions (A/B) is likely real or due to random variation, guiding data-driven decisions." },
-                        { q: "The 'Mean Difference' in the Independent Samples Test output represents:", o: ["The average standard deviation of the groups", "The difference between the two group means being compared", "The average p-value", "The critical t-value for significance"], a: "The difference between the two group means being compared", expl: "The Mean Difference directly states the numerical difference between the average values of the dependent variable for the two groups." }
-                    ]
-                },
-                'one-way-anova': {
-                    attempts: 0,
-                    maxAttempts: 3,
-                    score: 0,
-                    completed: false,
-                    questions: [
-                        { q: "One-Way ANOVA is used to compare the means of a continuous dependent variable across:", o: ["Two independent groups", "Three or more independent groups", "Two related groups", "Any number of groups, related or unrelated"], a: "Three or more independent groups", expl: "One-Way ANOVA is specifically designed for comparing the means of a continuous variable across three or more distinct (independent) groups." },
-                        { q: "If the overall ANOVA F-test is statistically significant (p ≤ .05), what is the next step typically required?", o: ["Conclude all groups are different", "Stop analysis, the answer is found", "Perform post-hoc tests", "Increase sample size"], a: "Perform post-hoc tests", expl: "A significant F-test only tells you that *at least one* group mean is different, not which specific pairs differ. Post-hoc tests are then used to identify these specific differences." },
-                        { q: "Why is ANOVA preferred over multiple t-tests when comparing more than two groups?", o: ["ANOVA is faster", "ANOVA is easier to interpret", "ANOVA controls for Type I error rate inflation", "ANOVA works with categorical dependent variables"], a: "ANOVA controls for Type I error rate inflation", expl: "Performing multiple t-tests increases the probability of falsely rejecting a true null hypothesis (Type I error). ANOVA provides an omnibus test that maintains the overall alpha level." },
-                        { q: "Eta-squared (η²) is an effect size measure for ANOVA. An η² of .10 is generally considered a:", o: ["Small effect", "Medium effect", "Large effect", "No effect"], a: "Medium effect", expl: "According to general guidelines, an eta-squared value of .10 falls within the range considered a medium effect size." },
-                        { q: "An AdPR team compares average engagement rate across three social media content types (Infographics, Videos, Polls). Which test is appropriate?", o: ["Independent Samples T-Test", "Chi-Square Test", "One-Way ANOVA", "Simple Linear Regression"], a: "One-Way ANOVA", expl: "This scenario involves comparing a continuous variable (engagement rate) across three or more independent groups (content types)." },
-                        { q: "What does a significant F-ratio in the ANOVA output indicate?", o: ["All group means are identical", "The independent variable has no effect", "There is a statistically significant difference between at least two group means", "The sample size is too small"], a: "There is a statistically significant difference between at least two group means", expl: "A significant F-ratio means that the null hypothesis of no difference among all group means is rejected, implying that at least one group mean is significantly different from the others." },
-                        { q: "Which post-hoc test is commonly used when the assumption of equal variances is violated in ANOVA?", o: ["Tukey HSD", "LSD", "Bonferroni", "Games-Howell"], a: "Games-Howell", expl: "Games-Howell is a robust post-hoc test recommended when Levene's Test indicates unequal variances across groups." },
-                        { q: "The 'Between Groups' sum of squares in the ANOVA table represents:", o: ["Random error", "Variability within each group", "Variability explained by the independent variable", "Total variability in the dependent variable"], a: "Variability explained by the independent variable", expl: "The 'Between Groups' sum of squares quantifies the variance in the dependent variable that is attributable to the differences between the group means (i.e., the effect of the independent variable)." },
-                        { q: "If the p-value for Levene's Test in ANOVA is .03 (with α=.05), what is the implication?", o: ["Variances are equal; use Tukey HSD", "Variances are unequal; use Games-Howell", "Normality assumption is violated", "The overall ANOVA is significant"], a: "Variances are unequal; use Games-Howell", expl: "A p-value ≤ .05 for Levene's Test indicates unequal variances, suggesting the need for post-hoc tests that don't assume equality, like Games-Howell." }
-                    ]
-                },
-                'simple-linear-regression': {
-                    attempts: 0,
-                    maxAttempts: 3,
-                    score: 0,
-                    completed: false,
-                    questions: [
-                        { q: "Simple Linear Regression is used to predict a continuous dependent variable from:", o: ["One categorical independent variable", "One continuous independent variable", "Two or more continuous independent variables", "Any number of independent variables"], a: "One continuous independent variable", expl: "Simple Linear Regression analyzes the linear relationship between exactly two continuous variables, with one predicting the other." },
-                        { q: "The 'b₁' coefficient (slope) in the regression equation *Y* = *b₀* + *b₁X* indicates:", o: ["The predicted value of Y when X is zero", "The change in Y for every one-unit increase in X", "The strength of the correlation between X and Y", "The overall model fit"], a: "The change in Y for every one-unit increase in X", expl: "The slope (b₁) quantifies the rate at which the dependent variable (Y) is expected to change for each unit increase in the independent variable (X)." },
-                        { q: "R-squared (R²) in simple linear regression tells you:", o: ["The significance of the slope", "The direction of the relationship", "The proportion of variance in the dependent variable explained by the independent variable", "Whether the data is normally distributed"], a: "The proportion of variance in the dependent variable explained by the independent variable", expl: "R-squared, or the coefficient of determination, indicates the percentage of variation in the dependent variable that is accounted for by the independent variable(s)." },
-                        { q: "An AdPR analyst wants to predict website sign-ups (continuous) based on the amount of money spent on digital advertising (continuous). Which test is appropriate?", o: ["Chi-Square Test", "Independent Samples T-Test", "One-Way ANOVA", "Simple Linear Regression"], a: "Simple Linear Regression", expl: "This scenario involves predicting one continuous variable (website sign-ups) from another continuous variable (ad spend), which is the purpose of simple linear regression." },
-                        { q: "Which of the following is an assumption of Simple Linear Regression?", o: ["Categorical dependent variable", "Non-linear relationship", "Homoscedasticity", "Presence of multicollinearity"], a: "Homoscedasticity", expl: "Homoscedasticity requires that the variance of the residuals (errors) is constant across all levels of the independent variable, ensuring consistent predictive accuracy." },
-                        { q: "If the p-value for the overall regression model's F-test is .000 (with α=.05), what does this mean?", o: ["No significant linear relationship", "A significant linear relationship exists", "The model is a poor fit", "There are no outliers"], a: "A significant linear relationship exists", expl: "A p-value less than .05 for the F-test indicates that the overall regression model is statistically significant, meaning the independent variable significantly predicts the dependent variable." },
-                        { q: "The intercept (*b₀*) in a simple linear regression equation represents:", o: ["The slope of the line", "The value of X when Y is zero", "The predicted value of Y when X is zero", "The error term"], a: "The predicted value of Y when X is zero", expl: "The intercept (b₀) is the point where the regression line crosses the Y-axis, representing the predicted value of the dependent variable when the independent variable is zero." },
-                        { q: "Extrapolating predictions beyond the range of observed data in regression can lead to:", o: ["More accurate forecasts", "Meaningless or inaccurate results", "Stronger correlations", "Better model fit"], a: "Meaningless or inaccurate results", expl: "Regression models are based on observed data; applying them to values outside this range assumes the linear relationship continues, which may not be true, leading to unreliable predictions." },
-                        { q: "What does an R-squared of 0.70 indicate in simple linear regression?", o: ["70% of the data is accurate", "The model explains 70% of the variance in the dependent variable", "The independent variable is 70% correlated with the dependent variable", "There is a 70% chance of predicting correctly"], a: "The model explains 70% of the variance in the dependent variable", expl: "An R-squared of 0.70 means that 70% of the variability in the dependent variable can be accounted for by the variations in the independent variable, indicating a strong model fit." }
-                    ]
-                },
-                'multiple-linear-regression': {
-                    attempts: 0,
-                    maxAttempts: 3,
-                    score: 0,
-                    completed: false,
-                    questions: [
-                        { q: "Multiple Linear Regression is used to predict a continuous dependent variable from:", o: ["One categorical independent variable", "One continuous independent variable", "Two or more independent variables", "Two related variables"], a: "Two or more independent variables", expl: "Multiple Linear Regression extends simple linear regression by allowing the use of two or more independent variables to predict a single continuous dependent variable." },
-                        { q: "Multicollinearity in multiple linear regression refers to high correlation among:", o: ["Dependent variables", "Independent variables", "Residuals", "Observations"], a: "Independent variables", expl: "Multicollinearity occurs when two or more independent variables in a regression model are highly correlated with each other, which can complicate the interpretation of individual predictor effects." },
-                        { q: "Standardized Beta (β) coefficients in multiple linear regression are primarily useful for:", o: ["Calculating the intercept", "Determining the p-value for the model", "Comparing the relative importance of different predictors", "Checking for linearity"], a: "Comparing the relative importance of different predictors", expl: "Standardized beta coefficients allow researchers to compare the unique contributions of different predictors on a common scale, indicating which has the strongest effect." },
-                        { q: "An AdPR manager wants to predict overall brand sentiment (continuous) using positive PR mentions (continuous), social media engagement rate (continuous), and ad recall score (continuous). Which test is appropriate?", o: ["Chi-Square Test", "Independent Samples T-Test", "One-Way ANOVA", "Multiple Linear Regression"], a: "Multiple Linear Regression", expl: "This scenario involves predicting a single continuous dependent variable (brand sentiment) from multiple continuous independent variables, which is the purpose of multiple linear regression." },
-                        { q: "What does 'Adjusted R-Square' primarily account for in multiple linear regression?", o: ["The overall significance of the model", "The number of predictors in the model", "The strength of individual predictors", "The presence of outliers"], a: "The number of predictors in the model", expl: "Adjusted R-squared is a modified version of R-squared that accounts for the number of predictors in the model, providing a more accurate estimate of the population R-squared and helping to avoid overfitting." },
-                        { q: "A VIF (Variance Inflation Factor) value of 15 for an independent variable typically suggests:", o: ["No multicollinearity", "Moderate multicollinearity", "Problematic multicollinearity", "A very strong predictor"], a: "Problematic multicollinearity", expl: "VIF values above 10 (or sometimes even 5) are generally considered to indicate problematic levels of multicollinearity, which can make individual predictor coefficients unreliable." },
-                        { q: "The unstandardized coefficient (B) for a predictor in multiple regression indicates:", o: ["Its relative importance compared to other predictors", "The expected change in the dependent variable for a one-unit change in that predictor, holding others constant", "Whether the predictor is significant", "The correlation with the dependent variable"], a: "The expected change in the dependent variable for a one-unit change in that predictor, holding others constant", expl: "The unstandardized coefficient (B) shows the direct change in the dependent variable for each one-unit increase in that specific independent variable, assuming all other predictors remain unchanged." },
-                        { q: "If the overall ANOVA table in multiple regression shows a significant F-statistic, it means:", o: ["All individual predictors are significant", "The model as a whole significantly predicts the dependent variable", "There is no multicollinearity", "The sample size is too large"], a: "The model as a whole significantly predicts the dependent variable", expl: "A significant F-statistic in the ANOVA table indicates that the entire set of independent variables, when considered together, significantly predicts the dependent variable, implying that the model is a good fit for the data." },
-                        { q: "Which assumption is checked using Tolerance or VIF values?", o: ["Normality of residuals", "Homoscedasticity", "Independence of observations", "No multicollinearity"], a: "No multicollinearity", expl: "Tolerance and VIF (Variance Inflation Factor) are key statistics used to diagnose multicollinearity, which is when independent variables in a multiple regression model are highly correlated with each other." }
-                    ]
-                }
-            };
-
-            // Initialize quiz state for each module
-            const quizStates = {
-                'chi-square': { attempts: 0, score: 0, completed: false },
-                't-test': { attempts: 0, score: 0, completed: false },
-                'one-way-anova': { attempts: 0, score: 0, completed: false },
-                'simple-linear-regression': { attempts: 0, score: 0, completed: false },
-                'multiple-linear-regression': { attempts: 0, score: 0, completed: false }
-            };
-
-            function shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-                }
-                return array;
-            }
-
-            function renderQuiz(moduleKey) {
-                const quizSection = document.getElementById(`${moduleKey}-quiz`);
-                const state = quizStates[moduleKey];
-                const questionsPool = quizData[moduleKey].questions;
-
-                if (!quizSection) return; // Exit if quiz section doesn't exist
-
-                // Clear previous content
-                quizSection.innerHTML = '';
-
-                // Only render if not completed and attempts remaining
-                if (state.completed || state.attempts >= state.maxAttempts) {
-                    let statusMessage = state.completed ? `Quiz Completed! Your final score was ${state.score}/3.` : `Maximum attempts (3) reached. Review the module content.`;
-                    let statusClass = state.score === 3 ? 'feedback-correct' : 'feedback-incorrect';
-                    quizSection.innerHTML = `
-                        <h3 class="text-2xl font-bold text-emerald-700">Quiz: Test Your Knowledge!</h3>
-                        <div class="quiz-overall-status ${statusClass} p-3 rounded-md">${statusMessage}</div>
-                    `;
-                    return; // Do not render questions or buttons if completed/max attempts
-                }
-
-                let quizHTML = `
-                    <h3 class="text-2xl font-bold text-emerald-700">Quiz: Test Your Knowledge!</h3>
-                    <p class="quiz-attempts-info">Attempt ${state.attempts + 1} of 3</p>
-                    <div id="quiz-questions-${moduleKey}"></div>
-                    <div class="quiz-buttons mt-4">
-                        <button id="submit-quiz-${moduleKey}">Submit Quiz</button>
-                        <button id="retake-quiz-${moduleKey}" style="display:none;">Retake Quiz</button>
-                    </div>
-                    <div id="quiz-feedback-${moduleKey}" class="quiz-feedback hidden"></div>
-                    <div id="quiz-overall-status-${moduleKey}" class="quiz-status hidden"></div>
-                `;
-                quizSection.innerHTML = quizHTML;
-
-                const questionsContainer = document.getElementById(`quiz-questions-${moduleKey}`);
-                const submitBtn = document.getElementById(`submit-quiz-${moduleKey}`);
-                const retakeBtn = document.getElementById(`retake-quiz-${moduleKey}`);
-                const feedbackDiv = document.getElementById(`quiz-feedback-${moduleKey}`);
-                const overallStatusDiv = document.getElementById(`quiz-overall-status-${moduleKey}`);
-
-                // Select 3 unique questions for this attempt
-                const currentQuestions = shuffleArray([...questionsPool]).slice(0, 3);
-                
-                questionsContainer.innerHTML = currentQuestions.map((qItem, qIndex) => `
-                    <div class="quiz-question">
-                        <p>${qIndex + 1}. ${qItem.q}</p>
-                        ${shuffleArray([...qItem.o]).map(option => `
-                            <div class="quiz-option">
-                                <label>
-                                    <input type="radio" name="q${moduleKey}-${qIndex}" value="${option}"> ${option}
-                                </label>
-                            </div>
-                        `).join('')}
-                        <div id="explanation-${moduleKey}-${qIndex}" class="quiz-explanation hidden"></div>
-                    </div>
-                `).join('');
-
-                submitBtn.onclick = () => {
-                    state.attempts++;
-                    let currentScore = 0;
-                    let allQuestionsAnswered = true;
-                    feedbackDiv.innerHTML = '';
-                    feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
-                    overallStatusDiv.classList.remove('feedback-correct', 'feedback-incorrect');
-
-                    currentQuestions.forEach((qItem, qIndex) => {
-                        const selectedOption = questionsContainer.querySelector(`input[name="q${moduleKey}-${qIndex}"]:checked`);
-                        const explanationDiv = document.getElementById(`explanation-${moduleKey}-${qIndex}`);
-                        explanationDiv.classList.remove('hidden');
-
-                        if (selectedOption) {
-                            if (selectedOption.value === qItem.a) {
-                                currentScore++;
-                                explanationDiv.innerHTML = `<strong>Correct!</strong> ${qItem.expl}`;
-                                explanationDiv.classList.add('feedback-correct');
-                                explanationDiv.classList.remove('feedback-incorrect');
-                            } else {
-                                explanationDiv.innerHTML = `<strong>Incorrect.</strong> The correct answer was "${qItem.a}". ${qItem.expl}`;
-                                explanationDiv.classList.add('feedback-incorrect');
-                                explanationDiv.classList.remove('feedback-correct');
-                            }
-                        } else {
-                            allQuestionsAnswered = false;
-                            explanationDiv.innerHTML = `<strong>Not Answered.</strong> The correct answer was "${qItem.a}". ${qItem.expl}`;
-                            explanationDiv.classList.add('feedback-incorrect');
-                            explanationDiv.classList.remove('feedback-correct');
-                        }
-                    });
-
-                    state.score = currentScore;
-                    feedbackDiv.innerHTML = `You scored ${state.score} out of 3.`;
-                    feedbackDiv.classList.add('p-3', 'rounded-md', 'border');
-                    feedbackDiv.classList.remove('hidden');
-
-                    if (state.score === 3) {
-                        state.completed = true;
-                        overallStatusDiv.textContent = `Quiz Completed! You passed this module.`;
-                        overallStatusDiv.classList.add('feedback-correct');
-                        overallStatusDiv.classList.remove('hidden');
-                        submitBtn.disabled = true;
-                        retakeBtn.style.display = 'none';
-                    } else if (state.attempts < state.maxAttempts) {
-                        overallStatusDiv.textContent = `Score: ${state.score}/3. Please try again.`;
-                        overallStatusDiv.classList.add('feedback-incorrect');
-                        overallStatusDiv.classList.remove('hidden');
-                        retakeBtn.style.display = 'inline-block';
-                    } else {
-                        state.completed = true;
-                        overallStatusDiv.textContent = `Maximum attempts (3) reached. Score: ${state.score}/3. Review the module content.`;
-                        overallStatusDiv.classList.add('feedback-incorrect');
-                        overallStatusDiv.classList.remove('hidden');
-                        submitBtn.disabled = true;
-                        retakeBtn.style.display = 'none';
-                    }
-                    submitBtn.style.display = 'none';
-                };
-
-                retakeBtn.onclick = () => {
-                    if (state.attempts < state.maxAttempts && !state.completed) {
-                        renderQuiz(moduleKey); // Render a new set of questions
-                        submitBtn.style.display = 'inline-block';
-                        retakeBtn.style.display = 'none';
-                        feedbackDiv.classList.add('hidden');
-                        overallStatusDiv.classList.add('hidden');
-                        overallStatusDiv.classList.remove('feedback-correct', 'feedback-incorrect');
-                    }
-                };
-
-                // Disable submit/retake if already completed or max attempts reached on load
-                if (state.completed || state.attempts >= state.maxAttempts) {
-                    submitBtn.disabled = true;
-                    retakeBtn.style.display = 'none';
-                    overallStatusDiv.textContent = state.completed ? `Quiz Completed! Your final score was ${state.score}/3.` : `Maximum attempts (3) reached. Review the module content.`;
-                    overallStatusDiv.classList.add(state.score === 3 ? 'feedback-correct' : 'feedback-incorrect');
-                    overallStatusDiv.classList.remove('hidden');
-                    // Show explanations if completed or max attempts
-                    questionsContainer.querySelectorAll('.quiz-explanation').forEach(el => el.classList.remove('hidden'));
-                }
-            }
-
-            // Render quizzes for each module
-            renderQuiz('chi-square');
-            renderQuiz('t-test');
-            renderQuiz('one-way-anova');
-            renderQuiz('simple-linear-regression');
-            renderQuiz('multiple-linear-regression');
-
-
             // --- AI Simulation Logic ---
             const generateBtn = document.getElementById('generate-scenario-btn');
-            const downloadBtn = document.getElementById('download-dataset-btn');
             const simulationOutput = document.getElementById('simulation-output');
             const simulationContent = document.getElementById('simulation-content');
             const loadingSpinner = document.getElementById('loading-spinner');
             const errorMessage = document.getElementById('error-message');
             const errorText = document.getElementById('error-text');
             
-            let generatedCsvData = ''; // To store the generated CSV data
-
             generateBtn.addEventListener('click', async () => {
                 const testType = document.getElementById('test-select').value;
                 const domain = document.getElementById('domain-select').value;
@@ -1338,7 +1000,6 @@
                 simulationContent.classList.add('hidden');
                 loadingSpinner.classList.remove('hidden');
                 errorMessage.classList.add('hidden');
-                downloadBtn.disabled = true;
 
                 try {
                     // This is the call to our future serverless function.
@@ -1361,12 +1022,6 @@
                     document.getElementById('hypotheses-text').innerHTML = data.hypotheses || 'No hypotheses generated.';
                     document.getElementById('spss-guide-text').textContent = data.spssGuide || 'No SPSS guide generated.';
                     
-                    generatedCsvData = data.csvData || ''; // Store CSV data
-                    
-                    if (generatedCsvData) {
-                        downloadBtn.disabled = false; // Enable download button if data exists
-                    }
-
                     simulationContent.classList.remove('hidden');
 
                 } catch (error) {
@@ -1379,24 +1034,6 @@
                     generateBtn.textContent = 'Generate Scenario';
                     loadingSpinner.classList.add('hidden');
                 }
-            });
-
-            downloadBtn.addEventListener('click', () => {
-                if (!generatedCsvData) {
-                    alert('No dataset available to download.');
-                    return;
-                }
-                const blob = new Blob([generatedCsvData], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                const testType = document.getElementById('test-select').value;
-                const domain = document.getElementById('domain-select').value;
-                link.setAttribute('download', `synthetic_data_${domain}_${testType}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
             });
         });
     </script>

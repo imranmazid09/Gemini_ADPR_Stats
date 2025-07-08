@@ -1,90 +1,87 @@
-// This is the secure serverless function that runs on Netlify's servers.
-// It acts as a bridge between your website and the Gemini API.
-// It safely uses your API key without exposing it to the user's browser.
+// Load environment variables if running locally
+require('dotenv').config();
 
-// Import the Google Generative AI SDK
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// The main handler function for the Netlify serverless function
-exports.handler = async function(event, context) {
-  // 1. --- PREPARE AND VALIDATE ---
-  // Only allow POST requests
-  if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405, // Method Not Allowed
-      body: JSON.stringify({ error: "Only POST requests are allowed" }),
-    };
-  }
+// Access your API key as an environment variable
+// In Netlify, you will set GEMINI_API_KEY as an environment variable.
+// For local development, you'll use a .env file.
+const API_KEY = process.env.GEMINI_API_KEY;
 
-  // Get the API key from the environment variables (set in Netlify's UI)
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Gemini API key is not configured." }),
-    };
-  }
+// Ensure the API key is available
+if (!API_KEY) {
+    console.error("GEMINI_API_KEY is not set. Please set it in your Netlify environment variables or a .env file for local development.");
+    // Exit or handle error appropriately if API key is missing
+}
 
-  // Initialize the GoogleGenerativeAI with the API key
-  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+const genAI = new GoogleGenerativeAI(API_KEY);
 
-  try {
-    // 2. --- GET USER INPUT & CONSTRUCT THE PROMPT ---
-    const { testType, domain } = JSON.parse(event.body);
-
-    // Basic validation for user input
-    if (!testType || !domain) {
+// Main handler for the Netlify Function
+exports.handler = async (event) => {
+    // Only allow POST requests
+    if (event.httpMethod !== 'POST') {
         return {
-            statusCode: 400, // Bad Request
-            body: JSON.stringify({ error: "Missing 'testType' or 'domain' in request body" }),
+            statusCode: 405,
+            body: JSON.stringify({ message: 'Method Not Allowed' }),
+            headers: { 'Allow': 'POST' }
         };
     }
 
-    // This is the detailed prompt we send to the Gemini API.
-    // It is carefully structured to request all the components you need.
-    const prompt = `
-        You are an expert instructional designer specializing in statistics for communication research. 
-        Your task is to generate a complete, self-contained educational module for a student.
+    try {
+        const { testType, domain } = JSON.parse(event.body);
 
-        The student has selected the following:
-        - Statistical Test: ${testType}
-        - Domain: ${domain}
+        if (!testType || !domain) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: 'Missing testType or domain in request body.' })
+            };
+        }
 
-        Please generate the following four components, formatted as a single JSON object. Do not include any text or formatting outside of the JSON structure.
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-        1.  "scenario": A detailed, realistic scenario (2-3 paragraphs) from the specified **${domain}** domain that requires the use of the **${testType}**. The scenario should be engaging and clearly outline a problem that needs solving.
+        // Construct the prompt for the AI model
+        const prompt = `Generate a realistic, practical scenario for an Advertising or Public Relations (AdPR) research study.
+        The scenario should involve a ${testType} statistical test within the ${domain} domain.
+        
+        Provide the following structured output:
+        
+        1.  **Scenario:** A detailed, realistic problem or situation.
+        2.  **Data Structure:** Describe the variables needed, their type (e.g., categorical, continuous), and how they would be measured (e.g., survey questions, metrics).
+        3.  **Hypotheses:** State a clear null hypothesis (H₀) and an alternative hypothesis (H₁).
+        4.  **SPSS Instructional Guide:** Provide a concise, step-by-step guide on how to conceptually run this specific statistical test in SPSS for the generated scenario. Focus on menu navigation and key dialog box selections relevant to the test.
+        
+        Ensure the output is in plain text, clearly labeled with the headings "Scenario:", "Data Structure:", "Hypotheses:", and "SPSS Instructional Guide:".`;
 
-        2.  "dataStructure": A description of the variables involved in the scenario. For each variable, specify its name (e.g., "Ad_Format"), its level of measurement (Nominal, Ordinal, Interval, or Ratio), and a brief description.
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-        3.  "hypotheses": A clearly stated null hypothesis (H₀) and alternative hypothesis (H₁) that are appropriate for the scenario and the selected statistical test.
+        // Parse the text into structured parts
+        const scenarioMatch = text.match(/Scenario:([\s\S]*?)(?=Data Structure:|$)/i);
+        const dataStructureMatch = text.match(/Data Structure:([\s\S]*?)(?=Hypotheses:|$)/i);
+        const hypothesesMatch = text.match(/Hypotheses:([\s\S]*?)(?=SPSS Instructional Guide:|$)/i);
+        const spssGuideMatch = text.match(/SPSS Instructional Guide:([\s\S]*)/i);
 
-        4.  "spssGuide": A concise, step-by-step guide on how to perform the **${testType}** in SPSS for this specific scenario. Use clear, simple language (e.g., "Navigate to Analyze > Compare Means...").
+        const scenario = scenarioMatch ? scenarioMatch[1].trim() : 'Could not parse scenario.';
+        const dataStructure = dataStructureMatch ? dataStructureMatch[1].trim() : 'Could not parse data structure.';
+        const hypotheses = hypothesesMatch ? hypothesesMatch[1].trim() : 'Could not parse hypotheses.';
+        const spssGuide = spssGuideMatch ? spssGuideMatch[1].trim() : 'Could not parse SPSS instructional guide.';
 
-        5.  "csvData": A synthetic dataset of exactly 30 observations, formatted as a CSV string. The CSV string must start with a header row of variable names and be followed by 30 rows of data. The data should be plausible for the scenario and structured to yield a statistically significant result when analyzed with the ${testType}. Ensure the CSV data is a single string with newline characters (\\n) separating the rows.
-    `;
-
-    // 3. --- CALL THE GEMINI API ---
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    // The response from Gemini should be a JSON string. We parse it here.
-    const generatedJson = JSON.parse(text);
-
-    // 4. --- SEND THE RESPONSE BACK TO THE FRONT-END ---
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(generatedJson),
-    };
-
-  } catch (error) {
-    // 5. --- HANDLE ERRORS ---
-    console.error("Error calling Gemini API:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Failed to generate scenario from the AI model.", details: error.message }),
-    };
-  }
+        return {
+            statusCode: 200,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                scenario,
+                dataStructure,
+                hypotheses,
+                spssGuide
+            })
+        };
+    } catch (error) {
+        console.error('Error in Netlify function:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Failed to generate scenario: ' + error.message })
+        };
+    }
 };

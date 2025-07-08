@@ -1,7 +1,6 @@
-# This is the configuration file for Netlify.
-# It tells Netlify where to find the serverless functions for your site.
+[build]
+  publish = "." # This tells Netlify to serve files from the root of your repository
+  functions = "netlify/functions" # This specifies the directory where your Netlify Functions are located
 
 [functions]
-  # Specifies the directory where your serverless functions are located.
-  # Netlify will automatically look for JavaScript files inside this folder.
-  directory = "netlify/functions/"
+  node_bundler = "esbuild" # Use esbuild for faster function bundling
